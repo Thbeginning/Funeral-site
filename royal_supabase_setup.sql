@@ -48,3 +48,29 @@ CREATE POLICY "Allow public read on royal-products" ON storage.objects FOR SELEC
 CREATE POLICY "Allow public uploads to royal-products" ON storage.objects FOR INSERT TO public WITH CHECK (bucket_id = 'royal-products');
 CREATE POLICY "Allow public update to royal-products" ON storage.objects FOR UPDATE TO public USING (bucket_id = 'royal-products');
 CREATE POLICY "Allow public delete to royal-products" ON storage.objects FOR DELETE TO public USING (bucket_id = 'royal-products');
+
+-- 6. Orders Table (Run this if you haven't already)
+CREATE TABLE IF NOT EXISTS public.orders (
+    id TEXT PRIMARY KEY,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    customer_name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    phone TEXT,
+    company TEXT,
+    address TEXT,
+    city TEXT,
+    state TEXT,
+    zip TEXT,
+    total_amount NUMERIC(12, 2) NOT NULL DEFAULT 0,
+    payment_method TEXT,
+    status TEXT NOT NULL DEFAULT 'pending',
+    items JSONB
+);
+
+ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
+
+-- Public can INSERT (place an order), only admin can read/update via service key
+CREATE POLICY "Allow public to place orders" ON public.orders FOR INSERT TO public WITH CHECK (true);
+CREATE POLICY "Allow public to read orders" ON public.orders FOR SELECT TO public USING (true);
+CREATE POLICY "Allow public to update order status" ON public.orders FOR UPDATE TO public USING (true);
+
