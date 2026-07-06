@@ -17,7 +17,7 @@
 const SUPABASE_URL = 'https://vypnmrxybqluurizfxjx.supabase.co';
 
 // ⚠️ PASTE YOUR SUPABASE ANON KEY HERE:
-const SUPABASE_ANON_KEY = ""; 
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5cG5tcnh5YnFsdXVyaXpmeGp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyODI2NTAsImV4cCI6MjA5ODg1ODY1MH0.xBXM9gPOgBkGFv03NLwNPiJrgBHler-FdrCnUedcA44"; 
 
 
 // =========================================================================
