@@ -1,0 +1,165 @@
+:root {
+  --color-slate-gray: #475569;
+  --color-navy-blue: #0f172a;
+  --color-crisp-white: #ffffff;
+  --color-clinical-teal: #0d9488;
+  --color-clinical-teal-hover: #0f766e;
+  --color-light-gray: #f1f5f9;
+  --font-primary: 'Inter', sans-serif;
+}
+
+body {
+  font-family: var(--font-primary);
+  background-color: var(--color-light-gray);
+  color: var(--color-slate-gray);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-navy-blue);
+  font-weight: 700;
+}
+
+/* Micro-animations */
+.hover-lift {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.btn-primary {
+  background-color: var(--color-clinical-teal);
+  color: var(--color-crisp-white);
+  transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-clinical-teal-hover);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-navy {
+  background-color: var(--color-navy-blue);
+  color: var(--color-crisp-white);
+  transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+}
+
+.btn-navy:hover {
+  background-color: #1e293b;
+}
+
+/* Navigation */
+.sticky-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(8px);
+  background-color: rgba(255, 255, 255, 0.95);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  background-color: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(4px);
+}
+
+/* Loading Spinner */
+.spinner {
+  border: 3px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  border-top: 3px solid var(--color-crisp-white);
+  width: 24px;
+  height: 24px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Custom Scrollbar for a more professional look */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-light-gray); 
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1; 
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8; 
+}
+
+/* =========================================
+   Horizontal Categories Carousel
+   ========================================= */
+.categories-scroll {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #0d9488 #f1f5f9;
+  cursor: grab;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+.categories-scroll:active {
+  cursor: grabbing;
+}
+
+.categories-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.categories-scroll::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.categories-scroll::-webkit-scrollbar-thumb {
+  background: #0d9488;
+  border-radius: 3px;
+}
+
+/* =========================================
+   Logo: Boost contrast on white background
+   ========================================= */
+.logo-img {
+  filter: contrast(1.2) brightness(0.9);
+}
+
+/* =========================================
+   Mobile Nav Improvements
+   ========================================= */
+@media (max-width: 768px) {
+  .sticky-nav {
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
+  
+  /* Mobile dropdown menu styling */
+  .mobile-menu-open {
+    background-color: #ffffff;
+    border-top: 2px solid #0d9488;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  }
+  
+  .mobile-menu-open a {
+    color: #0f172a !important;
+    font-weight: 600;
+    padding: 10px 0;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  .mobile-menu-open a:hover {
+    color: #0d9488 !important;
+  }
+}

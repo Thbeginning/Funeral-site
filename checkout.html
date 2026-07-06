@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout | Royal Funeral Supplies</title>
+    
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://*.supabase.co; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com blob:; connect-src 'self' https://*.supabase.co;">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: { gray: '#475569' },
+                        navy: { blue: '#0f172a' },
+                        teal: { clinical: '#0d9488', hover: '#0f766e' }
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    
+    <link rel="stylesheet" href="./css/styles.css">
+    
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="antialiased min-h-screen flex flex-col bg-gray-50">
+
+    <!-- 24/7 Support Banner -->
+    <div class="bg-teal-clinical text-white text-xs md:text-sm font-medium py-2 px-4 text-center overflow-hidden">
+        <span class="block truncate md:whitespace-normal">📞 contact@muhameddispo.com &nbsp;|&nbsp; 24/7 Discretion &amp; Reliability</span>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sticky-nav py-1 px-4 md:px-12 flex justify-between items-center w-full">
+        <div class="flex items-center">
+            <a href="index.html" class="flex items-center">
+                <img src="Logo.png" alt="Royal Funeral Supplies" class="logo-img h-14 md:h-16 w-auto object-contain scale-[1.3] md:scale-[1.1] origin-left hover:scale-[1.35] md:hover:scale-[1.15] transition-transform duration-300 drop-shadow-sm">
+            </a>
+        </div>
+        
+        <div class="hidden md:flex space-x-8 text-slate-gray font-medium">
+            <a href="index.html" class="hover:text-teal-clinical transition-colors">Home</a>
+            <a href="products.html" class="hover:text-teal-clinical transition-colors">Products</a>
+            <a href="#" class="hover:text-teal-clinical transition-colors">About Us</a>
+            <a href="#" class="hover:text-teal-clinical transition-colors">Contact</a>
+
+        </div>
+        
+        <div class="flex items-center space-x-6">
+            <a href="checkout.html" class="relative group text-navy-blue hover:text-teal-clinical transition-colors">
+                <svg class="w-6 h-6 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+                <span id="cart-count" class="absolute -top-2 -right-2 bg-navy-blue text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
+            </a>
+            <button class="md:hidden text-navy-blue hover:text-teal-clinical transition-colors">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow py-12 px-6 max-w-7xl mx-auto w-full">
+        <h1 class="text-3xl font-bold text-navy-blue mb-8">Secure Checkout</h1>
+        
+        <div class="flex flex-col lg:flex-row gap-12">
+            
+            <!-- Checkout Form -->
+            <div class="lg:w-2/3">
+                <form id="checkout-form" class="space-y-8">
+                    
+                    <!-- Contact Info -->
+                    <section class="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+                        <h2 class="text-xl font-bold text-navy-blue mb-6 pb-2 border-b border-gray-100">1. Contact & Shipping Information</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-gray mb-1" for="firstName">First Name *</label>
+                                <input type="text" id="firstName" required class="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-teal-clinical focus:border-teal-clinical outline-none transition-colors">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-gray mb-1" for="lastName">Last Name *</label>
+                                <input type="text" id="lastName" required class="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-teal-clinical focus:border-teal-clinical outline-none transition-colors">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-gray mb-1" for="email">Email Address *</label>
+                                <input type="email" id="email" required class="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-teal-clinical focus:border-teal-clinical outline-none transition-colors">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-gray mb-1" for="phone">Phone Number *</label>
+                                <input type="tel" id="phone" required class="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-teal-clinical focus:border-teal-clinical outline-none transition-colors">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-slate-gray mb-1" for="company">Facility/Company Name</label>
+                                <input type="text" id="company" class="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-teal-clinical focus:border-teal-clinical outline-none transition-colors">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-slate-gray mb-1" for="address">Delivery Address *</label>
+                                <input type="text" id="address" required class="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-teal-clinical focus:border-teal-clinical outline-none transition-colors">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-gray mb-1" for="city">City *</label>
+                                <input type="text" id="city" required class="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-teal-clinical focus:border-teal-clinical outline-none transition-colors">
+                            </div>
+                            <div class="flex gap-4">
+                                <div class="w-1/2">
+                                    <label class="block text-sm font-medium text-slate-gray mb-1" for="state">State *</label>
+                                    <input type="text" id="state" required class="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-teal-clinical focus:border-teal-clinical outline-none transition-colors">
+                                </div>
+                                <div class="w-1/2">
+                                    <label class="block text-sm font-medium text-slate-gray mb-1" for="zip">Zip Code *</label>
+                                    <input type="text" id="zip" required class="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-teal-clinical focus:border-teal-clinical outline-none transition-colors">
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Payment Gateway -->
+                    <section class="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+                        <h2 class="text-xl font-bold text-navy-blue mb-6 pb-2 border-b border-gray-100">2. Payment Method</h2>
+                        <p class="text-sm text-slate-gray mb-6">Select your preferred offline payment corridor. An invoice with secure account details will be emailed to you after submission.</p>
+                        
+                        <div class="space-y-4">
+                            <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                <input type="radio" name="payment" value="Bitcoin" checked class="w-5 h-5 text-teal-clinical focus:ring-teal-clinical border-gray-300">
+                                <span class="ml-4 font-medium text-navy-blue flex items-center">
+                                    <svg class="w-6 h-6 mr-2 text-orange-500" fill="currentColor" viewBox="0 0 24 24"><path d="M14.512 8.78c-.287-1.92-2.316-2.583-4.307-2.61v-2.31h-1.634v2.285h-1.3v-2.285H5.637v2.32H3.722v1.547h1.493c.53 0 .736.262.736.65v7.26c0 .41-.166.623-.62.623H3.723v1.547h1.914v2.378h1.635v-2.36h1.3v2.36h1.636v-2.392c2.518.064 4.38-.456 4.96-2.668.468-1.782-.23-2.695-1.503-3.155 1.015-.316 1.637-1.077 1.444-2.19m-4.502 6.634H8.05v-3.23h1.86c1.86 0 2.213.924 2.213 1.603 0 .736-.456 1.627-2.112 1.627m.335-4.526H8.05V8.188h2.197c1.554 0 1.956.762 1.956 1.34 0 .73-.553 1.36-1.858 1.36"></path></svg>
+                                    Bitcoin (BTC)
+                                </span>
+                            </label>
+                            <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                <input type="radio" name="payment" value="CashApp" class="w-5 h-5 text-teal-clinical focus:ring-teal-clinical border-gray-300">
+                                <span class="ml-4 font-medium text-navy-blue flex items-center">CashApp</span>
+                            </label>
+                            <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                <input type="radio" name="payment" value="Apple Pay" class="w-5 h-5 text-teal-clinical focus:ring-teal-clinical border-gray-300">
+                                <span class="ml-4 font-medium text-navy-blue flex items-center">Apple Pay</span>
+                            </label>
+                            <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                <input type="radio" name="payment" value="Zelle" class="w-5 h-5 text-teal-clinical focus:ring-teal-clinical border-gray-300">
+                                <span class="ml-4 font-medium text-navy-blue flex items-center">Zelle</span>
+                            </label>
+                            <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                <input type="radio" name="payment" value="Chime" class="w-5 h-5 text-teal-clinical focus:ring-teal-clinical border-gray-300">
+                                <span class="ml-4 font-medium text-navy-blue flex items-center">Chime</span>
+                            </label>
+                        </div>
+                    </section>
+
+                    <button type="submit" id="submit-order-btn" class="btn-primary w-full py-4 rounded-md font-bold text-lg shadow-lg">
+                        Place Order
+                    </button>
+                </form>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="lg:w-1/3">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 sticky top-24">
+                    <h3 class="font-bold text-navy-blue text-lg mb-4">Order Summary</h3>
+                    
+                    <div id="checkout-cart-items" class="mb-6 max-h-96 overflow-y-auto pr-2">
+                        <!-- Items rendered by checkout.js -->
+                    </div>
+
+                    <!-- Tier 2 Notice (Hidden by default) -->
+                    <div id="checkout-notice" class="hidden mb-6 bg-blue-50 border-l-4 border-blue-500 p-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-blue-700 font-medium">Heavy Freight Items Detected</p>
+                                <p class="text-xs text-blue-600 mt-1">Due to freight dimensions, shipping will be calculated manually after submission. Our team will contact you with a finalized quote.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-200 pt-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-slate-gray">Subtotal</span>
+                            <span id="checkout-total" class="font-bold text-navy-blue">$0.00</span>
+                        </div>
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-slate-gray">Shipping</span>
+                            <span class="text-slate-gray text-sm italic">Calculated post-submission</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-navy-blue text-slate-300 py-8 mt-auto">
+        <div class="max-w-7xl mx-auto px-6 text-center text-sm">
+            &copy; 2026 Royal Funeral Supplies. All rights reserved. B2B Sales Only.
+        </div>
+    </footer>
+
+    <!-- Configuration & DB -->
+    <script src="./js/supabase-config.js"></script>
+    <script src="./js/db.js"></script>
+
+    <!-- Scripts -->
+    <script src="./js/main.js"></script>
+    <script src="./js/checkout.js"></script>
+    
+    <!-- Smartsupp Live Chat script -->
+    <script type="text/javascript">
+    var _smartsupp = _smartsupp || {};
+    _smartsupp.key = 'aa3e82264eba86dffde6dcd02c640b19191dddc7';
+    window.smartsupp||(function(d) {
+      var s,c,o=smartsupp=function(){ o._.push(arguments)};o._=[];
+      s=d.getElementsByTagName('script')[0];c=d.createElement('script');
+      c.type='text/javascript';c.charset='utf-8';c.async=true;
+      c.src='https://www.smartsuppchat.com/loader.js?';s.parentNode.insertBefore(c,s);
+    })(document);
+    </script>
+    <noscript>Powered by <a href="https://www.smartsupp.com" target="_blank">Smartsupp</a></noscript>
+</body>
+</html>

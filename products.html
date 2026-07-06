@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products | Royal Funeral Supplies</title>
+    
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://*.supabase.co; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com blob:; connect-src 'self' https://*.supabase.co;">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: { gray: '#475569' },
+                        navy: { blue: '#0f172a' },
+                        teal: { clinical: '#0d9488', hover: '#0f766e' }
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    
+    <link rel="stylesheet" href="./css/styles.css">
+    
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="antialiased min-h-screen flex flex-col">
+
+    <!-- 24/7 Support Banner -->
+    <div class="bg-teal-clinical text-white text-xs md:text-sm font-medium py-2 px-4 text-center overflow-hidden">
+        <span class="block truncate md:whitespace-normal">📞 contact@muhameddispo.com &nbsp;|&nbsp; 24/7 Discretion &amp; Reliability</span>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sticky-nav py-1 px-4 md:px-12 flex justify-between items-center w-full">
+        <div class="flex items-center">
+            <a href="index.html" class="flex items-center">
+                <img src="Logo.png" alt="Royal Funeral Supplies" class="logo-img h-14 md:h-16 w-auto object-contain scale-[1.3] md:scale-[1.1] origin-left hover:scale-[1.35] md:hover:scale-[1.15] transition-transform duration-300 drop-shadow-sm">
+            </a>
+        </div>
+        
+        <div class="hidden md:flex space-x-8 text-slate-gray font-medium">
+            <a href="index.html" class="hover:text-teal-clinical transition-colors">Home</a>
+            <a href="products.html" class="text-teal-clinical transition-colors">Products</a>
+            <a href="#" class="hover:text-teal-clinical transition-colors">About Us</a>
+            <a href="#" class="hover:text-teal-clinical transition-colors">Contact</a>
+
+        </div>
+        
+        <div class="flex items-center space-x-6">
+            <a href="checkout.html" class="relative group">
+                <svg class="w-6 h-6 text-navy-blue group-hover:text-teal-clinical transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+                <span id="cart-count" class="absolute -top-2 -right-2 bg-teal-clinical text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
+            </a>
+            <button class="md:hidden text-navy-blue hover:text-teal-clinical transition-colors">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="bg-slate-gray py-12 text-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <h1 class="text-3xl md:text-4xl font-bold mb-2">Product Directory</h1>
+            <p class="text-slate-200">Browse our comprehensive catalog of professional mortuary equipment.</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow py-12 px-6 max-w-7xl mx-auto w-full flex flex-col md:flex-row gap-8">
+        
+        <!-- Sidebar Filters -->
+        <aside class="w-full md:w-64 flex-shrink-0">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <h3 class="font-bold text-navy-blue text-lg mb-4">Categories</h3>
+                <ul id="category-list" class="space-y-3">
+                    <li><a href="products.html" class="text-slate-gray hover:text-teal-clinical transition-colors font-semibold">All Products</a></li>
+                    <!-- Dynamic categories will be injected here -->
+                    <div class="spinner mt-4 border-teal-clinical border-t-navy-blue"></div>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Product Grid -->
+        <section class="flex-grow">
+            <!-- Dynamic Grid Container -->
+            <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Products will be dynamically rendered here by products.js -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-navy-blue text-slate-300 py-8 mt-auto">
+        <div class="max-w-7xl mx-auto px-6 text-center text-sm">
+            &copy; 2026 Royal Funeral Supplies. All rights reserved. B2B Sales Only.
+        </div>
+    </footer>
+
+    <!-- Configuration & DB -->
+    <script src="./js/supabase-config.js"></script>
+    <script src="./js/db.js"></script>
+
+    <!-- Scripts -->
+    <script src="./js/main.js"></script>
+    <script src="./js/products.js"></script>
+    
+    <!-- Smartsupp Live Chat script -->
+    <script type="text/javascript">
+    var _smartsupp = _smartsupp || {};
+    _smartsupp.key = 'aa3e82264eba86dffde6dcd02c640b19191dddc7';
+    window.smartsupp||(function(d) {
+      var s,c,o=smartsupp=function(){ o._.push(arguments)};o._=[];
+      s=d.getElementsByTagName('script')[0];c=d.createElement('script');
+      c.type='text/javascript';c.charset='utf-8';c.async=true;
+      c.src='https://www.smartsuppchat.com/loader.js?';s.parentNode.insertBefore(c,s);
+    })(document);
+    </script>
+    <noscript>Powered by <a href="https://www.smartsupp.com" target="_blank">Smartsupp</a></noscript>
+</body>
+</html>

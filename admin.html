@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Royal Funeral Supplies</title>
+    
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://*.supabase.co; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com blob:; connect-src 'self' https://*.supabase.co;">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: { gray: '#475569' },
+                        navy: { blue: '#0f172a' },
+                        teal: { clinical: '#0d9488', hover: '#0f766e' }
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    
+    <link rel="stylesheet" href="./css/styles.css">
+    
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="antialiased min-h-screen bg-gray-50 flex flex-col">
+
+    <!-- Login Overlay (Hidden once authenticated) -->
+    <div id="login-overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-navy-blue">
+        <div class="bg-white p-10 rounded-xl shadow-2xl max-w-sm w-full">
+            <h2 class="text-2xl font-bold text-navy-blue mb-6 text-center">Admin Access</h2>
+            <p class="text-sm text-slate-gray mb-6 text-center">Default Password is <strong>admin1234</strong></p>
+            <form id="login-form">
+                <input type="password" id="admin-pwd" class="w-full border border-gray-300 rounded px-4 py-3 mb-4 focus:ring-2 focus:ring-teal-clinical focus:border-teal-clinical outline-none transition-colors" placeholder="Enter Password" required>
+                <button type="submit" class="btn-primary w-full py-3 rounded-md font-bold text-lg">Login</button>
+                <p id="login-error" class="text-red-500 text-sm mt-4 text-center hidden">Incorrect Password.</p>
+            </form>
+            <div class="mt-6 text-center">
+                <a href="index.html" class="text-sm text-slate-gray hover:text-teal-clinical underline">Return to Main Site</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Navbar -->
+    <nav class="bg-navy-blue py-4 px-6 md:px-12 flex justify-between items-center w-full text-white shadow-md z-40 relative hidden" id="admin-nav">
+            <a href="admin.html" class="flex items-center">
+                <img src="Logo.png" alt="Royal Funeral Supplies" class="logo-img h-16 w-auto object-contain">
+                <span class="ml-3 text-xl font-bold tracking-tight text-white"><span class="font-light text-slate-300">| Dashboard</span></span>
+            </a>
+        <div class="flex items-center space-x-6">
+            <a href="index.html" class="hover:text-teal-clinical transition-colors text-sm">View Site</a>
+            <button id="logout-btn" class="bg-red-500 hover:bg-red-600 px-4 py-2 rounded text-sm font-semibold transition-colors">Logout</button>
+        </div>
+    </nav>
+
+    <!-- Dashboard Content -->
+    <main class="flex-grow py-8 px-6 max-w-7xl mx-auto w-full hidden" id="admin-main">
+        
+        <!-- View 1: Groups Master List -->
+        <div id="view-groups-list">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 class="text-3xl font-bold text-navy-blue">Manage Inventory</h2>
+                    <p class="text-slate-gray mt-1">Select a group to manage its products, or create a new group.</p>
+                </div>
+                <button id="btn-add-group" class="btn-primary px-6 py-3 rounded-lg font-bold shadow-md hover:shadow-lg transition-shadow">+ Create New Group</button>
+            </div>
+            
+            <div id="groups-grid-admin" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Loaded by JS -->
+            </div>
+        </div>
+
+        <!-- View 2: Group Details & Products -->
+        <div id="view-group-detail" class="hidden">
+            <button id="btn-back-to-groups" class="text-slate-gray hover:text-navy-blue mb-6 flex items-center font-semibold transition-colors">
+                <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                Back to All Groups
+            </button>
+
+            <!-- Group Header Header -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col md:flex-row items-center gap-6 mb-8">
+                <div class="w-24 h-24 flex-shrink-0 bg-gray-200 rounded-lg overflow-hidden border border-gray-200">
+                    <img id="detail-group-image" src="" class="w-full h-full object-cover">
+                </div>
+                <div class="flex-grow">
+                    <h2 id="detail-group-name" class="text-3xl font-bold text-navy-blue mb-1">Group Name</h2>
+                    <p id="detail-group-desc" class="text-slate-gray text-sm">Group description here.</p>
+                </div>
+                <div class="flex space-x-3">
+                    <button id="btn-edit-current-group" class="px-4 py-2 border border-gray-300 rounded text-navy-blue font-bold hover:bg-gray-50 transition-colors">Edit Group Info</button>
+                    <button id="btn-delete-current-group" class="px-4 py-2 border border-red-300 text-red-600 rounded font-bold hover:bg-red-50 transition-colors">Delete Group</button>
+                </div>
+            </div>
+
+            <!-- Products Table for this Group -->
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-2xl font-bold text-navy-blue">Products in this Group</h3>
+                <button id="btn-add-product" class="bg-navy-blue hover:bg-teal-clinical text-white px-4 py-2 rounded font-bold transition-colors shadow-sm">+ Add Product Here</button>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-100 border-b border-gray-200 text-slate-gray">
+                            <th class="p-4 font-semibold text-sm">Image</th>
+                            <th class="p-4 font-semibold text-sm">Name</th>
+                            <th class="p-4 font-semibold text-sm">Price</th>
+                            <th class="p-4 font-semibold text-sm">Tier</th>
+                            <th class="p-4 font-semibold text-sm text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-products-tbody">
+                        <!-- Loaded by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal for Create/Edit -->
+    <div id="edit-modal" class="fixed inset-0 z-50 flex items-center justify-center modal-overlay hidden px-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center p-6 border-b border-gray-100 sticky top-0 bg-white z-10">
+                <h3 id="modal-title" class="text-xl font-bold text-navy-blue">Edit Item</h3>
+                <button id="modal-close" class="text-slate-gray hover:text-red-500 font-bold text-2xl leading-none">&times;</button>
+            </div>
+            <div class="p-6">
+                <!-- Form Content injected by JS -->
+                <form id="edit-form" class="space-y-5">
+                    <div id="form-fields"></div>
+                    <div class="pt-6 border-t border-gray-100 flex justify-end space-x-4">
+                        <button type="button" id="modal-cancel" class="px-6 py-2 border border-gray-300 rounded text-slate-gray font-bold hover:bg-gray-50 transition-colors">Cancel</button>
+                        <button type="submit" class="btn-primary px-8 py-2 rounded font-bold shadow-md hover:shadow-lg transition-shadow">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Configuration & DB -->
+    <script src="./js/supabase-config.js"></script>
+    <script src="./js/db.js"></script>
+    
+    <!-- Admin Logic -->
+    <script src="./js/admin.js"></script>
+</body>
+</html>
