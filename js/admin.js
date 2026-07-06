@@ -217,6 +217,26 @@ document.addEventListener('DOMContentLoaded', async () => {
             reader.onerror = error => reject(error);
         });
     }
+
+    async function uploadImageFile(file, bucket) {
+        if (!window.dbManager || !window.dbManager.useSupabase) {
+            return await compressImageAndReturnBase64(file);
+        }
+        
+        const sb = window.initSupabase();
+        const uuid = Date.now().toString(36) + Math.random().toString(36).substr(2);
+        const ext = file.name.split('.').pop().toLowerCase().replace(/[^a-z0-9]/g, '');
+        const filename = `${uuid}.${ext}`;
+        
+        const { data, error } = await sb.storage.from(bucket).upload(filename, file, { cacheControl: '3600', upsert: false });
+        if (error) {
+            console.error("Storage upload error:", error);
+            throw error;
+        }
+        
+        const { data: { publicUrl } } = sb.storage.from(bucket).getPublicUrl(filename);
+        return publicUrl;
+    }
     
     let currentEditType = null; // 'product' or 'group'
     let currentEditId = null;
@@ -344,7 +364,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 let finalImageUrl = document.getElementById('f_image').value.trim();
                 const fileInput = document.getElementById('f_image_file');
                 if (fileInput && fileInput.files.length > 0) {
-                    finalImageUrl = await compressImageAndReturnBase64(fileInput.files[0]);
+                    finalImageUrl = await uploadImageFile(fileInput.files[0], 'royal-groups');
                 }
 
                 const group = {
@@ -365,7 +385,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 let finalImageUrl = document.getElementById('f_image').value.trim();
                 const fileInput = document.getElementById('f_image_file');
                 if (fileInput && fileInput.files.length > 0) {
-                    finalImageUrl = await compressImageAndReturnBase64(fileInput.files[0]);
+                    finalImageUrl = await uploadImageFile(fileInput.files[0], 'royal-products');
                 }
 
                 const product = {
