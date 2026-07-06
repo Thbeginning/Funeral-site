@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout | Royal Funeral Supplies</title>
     
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://*.supabase.co; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com blob:; connect-src 'self' https://*.supabase.co;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://*.supabase.co; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://*.smartsuppchat.com https://*.smartsupp.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com blob:; media-src 'self'; connect-src 'self' https://*.supabase.co wss://*.smartsuppchat.com https://*.smartsuppchat.com https://*.smartsupp.com https://api.resend.com;">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -50,9 +50,14 @@
         <div class="hidden md:flex space-x-8 text-slate-gray font-medium">
             <a href="index.html" class="hover:text-teal-clinical transition-colors">Home</a>
             <a href="products.html" class="hover:text-teal-clinical transition-colors">Products</a>
-            <a href="#" class="hover:text-teal-clinical transition-colors">About Us</a>
-            <a href="#" class="hover:text-teal-clinical transition-colors">Contact</a>
-
+            <a href="about.html" class="hover:text-teal-clinical transition-colors">About Us</a>
+            <div class="relative group cursor-pointer py-1">
+                <span class="hover:text-teal-clinical transition-colors">Contact</span>
+                <div class="absolute top-full left-0 mt-0 w-56 bg-white border border-gray-100 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 p-4">
+                    <p class="text-xs text-slate-gray mb-1">Email us directly:</p>
+                    <a href="mailto:contact@muhameddispo.com" class="text-sm font-bold text-navy-blue hover:text-teal-clinical break-all">contact@muhameddispo.com</a>
+                </div>
+            </div>
         </div>
         
         <div class="flex items-center space-x-6">
@@ -65,6 +70,16 @@
             <button class="md:hidden text-navy-blue hover:text-teal-clinical transition-colors">
                 <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </button>
+        </div>
+        
+        <div id="mobile-menu" class="hidden md:hidden absolute top-full left-0 w-full mobile-menu-open flex flex-col px-6 pb-4 z-40 transition-all duration-300">
+            <a href="index.html">Home</a>
+            <a href="products.html">Products</a>
+            <a href="about.html">About Us</a>
+            <a href="mailto:contact@muhameddispo.com" class="border-b-0">Contact: contact@muhameddispo.com</a>
+            <a href="checkout.html" class="text-teal-clinical flex items-center justify-between border-b-0 mt-2">
+                Cart <span class="bg-teal-clinical text-white text-xs px-2 py-1 rounded-full cart-count">0</span>
+            </a>
         </div>
     </nav>
 
@@ -130,27 +145,26 @@
                         
                         <div class="space-y-4">
                             <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                                <input type="radio" name="payment" value="Bitcoin" checked class="w-5 h-5 text-teal-clinical focus:ring-teal-clinical border-gray-300">
+                                <input type="radio" name="payment" value="Bank Transfer" checked class="w-5 h-5 text-teal-clinical focus:ring-teal-clinical border-gray-300">
                                 <span class="ml-4 font-medium text-navy-blue flex items-center">
-                                    <svg class="w-6 h-6 mr-2 text-orange-500" fill="currentColor" viewBox="0 0 24 24"><path d="M14.512 8.78c-.287-1.92-2.316-2.583-4.307-2.61v-2.31h-1.634v2.285h-1.3v-2.285H5.637v2.32H3.722v1.547h1.493c.53 0 .736.262.736.65v7.26c0 .41-.166.623-.62.623H3.723v1.547h1.914v2.378h1.635v-2.36h1.3v2.36h1.636v-2.392c2.518.064 4.38-.456 4.96-2.668.468-1.782-.23-2.695-1.503-3.155 1.015-.316 1.637-1.077 1.444-2.19m-4.502 6.634H8.05v-3.23h1.86c1.86 0 2.213.924 2.213 1.603 0 .736-.456 1.627-2.112 1.627m.335-4.526H8.05V8.188h2.197c1.554 0 1.956.762 1.956 1.34 0 .73-.553 1.36-1.858 1.36"></path></svg>
-                                    Bitcoin (BTC)
+                                    <svg class="w-6 h-6 mr-2 text-teal-clinical" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                                    Bank Transfer (ACH/Wire)
                                 </span>
-                            </label>
-                            <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                                <input type="radio" name="payment" value="CashApp" class="w-5 h-5 text-teal-clinical focus:ring-teal-clinical border-gray-300">
-                                <span class="ml-4 font-medium text-navy-blue flex items-center">CashApp</span>
-                            </label>
-                            <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                                <input type="radio" name="payment" value="Apple Pay" class="w-5 h-5 text-teal-clinical focus:ring-teal-clinical border-gray-300">
-                                <span class="ml-4 font-medium text-navy-blue flex items-center">Apple Pay</span>
                             </label>
                             <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
                                 <input type="radio" name="payment" value="Zelle" class="w-5 h-5 text-teal-clinical focus:ring-teal-clinical border-gray-300">
                                 <span class="ml-4 font-medium text-navy-blue flex items-center">Zelle</span>
                             </label>
                             <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                                <input type="radio" name="payment" value="Chime" class="w-5 h-5 text-teal-clinical focus:ring-teal-clinical border-gray-300">
-                                <span class="ml-4 font-medium text-navy-blue flex items-center">Chime</span>
+                                <input type="radio" name="payment" value="CashApp" class="w-5 h-5 text-teal-clinical focus:ring-teal-clinical border-gray-300">
+                                <span class="ml-4 font-medium text-navy-blue flex items-center">CashApp</span>
+                            </label>
+                            <label class="flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                <input type="radio" name="payment" value="Crypto" class="w-5 h-5 text-teal-clinical focus:ring-teal-clinical border-gray-300">
+                                <span class="ml-4 font-medium text-navy-blue flex items-center">
+                                    <svg class="w-6 h-6 mr-2 text-orange-500" fill="currentColor" viewBox="0 0 24 24"><path d="M14.512 8.78c-.287-1.92-2.316-2.583-4.307-2.61v-2.31h-1.634v2.285h-1.3v-2.285H5.637v2.32H3.722v1.547h1.493c.53 0 .736.262.736.65v7.26c0 .41-.166.623-.62.623H3.723v1.547h1.914v2.378h1.635v-2.36h1.3v2.36h1.636v-2.392c2.518.064 4.38-.456 4.96-2.668.468-1.782-.23-2.695-1.503-3.155 1.015-.316 1.637-1.077 1.444-2.19m-4.502 6.634H8.05v-3.23h1.86c1.86 0 2.213.924 2.213 1.603 0 .736-.456 1.627-2.112 1.627m.335-4.526H8.05V8.188h2.197c1.554 0 1.956.762 1.956 1.34 0 .73-.553 1.36-1.858 1.36"></path></svg>
+                                    Cryptocurrency (BTC, ETH)
+                                </span>
                             </label>
                         </div>
                     </section>
@@ -204,7 +218,7 @@
     <!-- Footer -->
     <footer class="bg-navy-blue text-slate-300 py-8 mt-auto">
         <div class="max-w-7xl mx-auto px-6 text-center text-sm">
-            &copy; 2026 Royal Funeral Supplies. All rights reserved. B2B Sales Only.
+            &copy; 2024 Royal Funeral Supplies. All rights reserved. B2B Sales Only.
         </div>
     </footer>
 

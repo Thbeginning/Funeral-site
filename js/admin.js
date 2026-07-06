@@ -40,6 +40,129 @@ document.addEventListener('DOMContentLoaded', async () => {
         adminNav.classList.remove('hidden');
         adminMain.classList.remove('hidden');
         loadData();
+        setupTabs();
+    }
+
+    // ==========================================
+    // TAB SWITCHING LOGIC
+    // ==========================================
+    function setupTabs() {
+        const tabInventory = document.getElementById('tab-inventory');
+        const tabOrders = document.getElementById('tab-orders');
+        const panelInventory = document.getElementById('panel-inventory');
+        const panelOrders = document.getElementById('panel-orders');
+
+        tabInventory.addEventListener('click', () => {
+            tabInventory.classList.add('border-teal-clinical', 'text-teal-clinical');
+            tabInventory.classList.remove('border-transparent', 'text-slate-gray');
+            tabOrders.classList.remove('border-teal-clinical', 'text-teal-clinical');
+            tabOrders.classList.add('border-transparent', 'text-slate-gray');
+            panelInventory.classList.remove('hidden');
+            panelOrders.classList.add('hidden');
+        });
+
+        tabOrders.addEventListener('click', () => {
+            tabOrders.classList.add('border-teal-clinical', 'text-teal-clinical');
+            tabOrders.classList.remove('border-transparent', 'text-slate-gray');
+            tabInventory.classList.remove('border-teal-clinical', 'text-teal-clinical');
+            tabInventory.classList.add('border-transparent', 'text-slate-gray');
+            panelOrders.classList.remove('hidden');
+            panelInventory.classList.add('hidden');
+            loadOrders();
+        });
+
+        document.getElementById('btn-refresh-orders').addEventListener('click', loadOrders);
+    }
+
+    // ==========================================
+    // ORDERS LOADER & RENDERER
+    // ==========================================
+    async function loadOrders() {
+        const ordersList = document.getElementById('orders-list');
+        ordersList.innerHTML = `<div class="text-center py-12 text-slate-gray"><p class="text-4xl mb-3">⏳</p><p class="font-semibold">Loading orders...</p></div>`;
+
+        try {
+            const orders = await window.dbManager.getOrders() || [];
+
+            if (orders.length === 0) {
+                ordersList.innerHTML = `<div class="text-center py-16 text-slate-gray"><p class="text-5xl mb-4">🛒</p><h3 class="text-xl font-bold text-navy-blue mb-2">No Orders Yet</h3><p>When customers place orders on your site, they will appear here.</p></div>`;
+                return;
+            }
+
+            ordersList.replaceChildren();
+            orders.forEach(order => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden';
+
+                const statusColor = {
+                    'pending': 'bg-yellow-100 text-yellow-800',
+                    'processing': 'bg-blue-100 text-blue-800',
+                    'shipped': 'bg-indigo-100 text-indigo-800',
+                    'completed': 'bg-green-100 text-green-800',
+                    'cancelled': 'bg-red-100 text-red-800'
+                }[order.status] || 'bg-gray-100 text-gray-800';
+
+                let items = [];
+                try { items = JSON.parse(order.items || '[]'); } catch(e) {}
+
+                const itemsHtml = items.map(i => `<li class="text-xs text-slate-gray">${i.qty}× ${i.name} — $${parseFloat(i.price).toFixed(2)}</li>`).join('');
+
+                card.innerHTML = `
+                    <div class="flex flex-col md:flex-row md:items-center justify-between p-5 gap-4">
+                        <div class="flex-grow">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="text-lg font-mono font-bold text-navy-blue">${order.id}</span>
+                                <span class="px-3 py-1 rounded-full text-xs font-bold uppercase ${statusColor}">${order.status}</span>
+                            </div>
+                            <p class="font-bold text-slate-700">${order.customer_name}</p>
+                            <p class="text-sm text-slate-gray">${order.email} • ${order.phone}</p>
+                            <p class="text-sm text-slate-gray">${order.address}, ${order.city}, ${order.state} ${order.zip}</p>
+                            ${order.company ? `<p class="text-xs text-slate-500 mt-1">🏢 ${order.company}</p>` : ''}
+                        </div>
+                        <div class="flex-shrink-0 text-right">
+                            <p class="text-2xl font-bold text-teal-clinical">$${parseFloat(order.total_amount).toFixed(2)}</p>
+                            <p class="text-xs text-slate-gray">${order.payment_method}</p>
+                            <p class="text-xs text-slate-gray mt-1">${new Date(order.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                        </div>
+                    </div>
+                    ${itemsHtml ? `<div class="border-t border-gray-100 px-5 py-3 bg-gray-50"><ul class="space-y-0.5">${itemsHtml}</ul></div>` : ''}
+                    <div class="border-t border-gray-100 px-5 py-3 flex items-center gap-3">
+                        <label class="text-xs font-bold text-slate-gray">Update Status:</label>
+                        <select class="order-status-select border border-gray-300 rounded px-3 py-1.5 text-sm bg-white focus:ring-2 focus:ring-teal-clinical outline-none" data-order-id="${order.id}">
+                            <option value="pending" ${order.status==='pending'?'selected':''}>Pending</option>
+                            <option value="processing" ${order.status==='processing'?'selected':''}>Processing</option>
+                            <option value="shipped" ${order.status==='shipped'?'selected':''}>Shipped</option>
+                            <option value="completed" ${order.status==='completed'?'selected':''}>Completed</option>
+                            <option value="cancelled" ${order.status==='cancelled'?'selected':''}>Cancelled</option>
+                        </select>
+                        <button class="update-status-btn btn-primary px-4 py-1.5 rounded text-xs font-bold" data-order-id="${order.id}">Save</button>
+                    </div>
+                `;
+
+                card.querySelector('.update-status-btn').addEventListener('click', async (evt) => {
+                    const oid = evt.target.dataset.orderId;
+                    const sel = card.querySelector('.order-status-select');
+                    const newStatus = sel.value;
+                    try {
+                        await window.dbManager.updateOrderStatus(oid, newStatus);
+                        const badge = card.querySelector('.rounded-full');
+                        if (badge) {
+                            badge.textContent = newStatus;
+                            badge.className = `px-3 py-1 rounded-full text-xs font-bold uppercase ${{ 'pending': 'bg-yellow-100 text-yellow-800', 'processing': 'bg-blue-100 text-blue-800', 'shipped': 'bg-indigo-100 text-indigo-800', 'completed': 'bg-green-100 text-green-800', 'cancelled': 'bg-red-100 text-red-800' }[newStatus] || 'bg-gray-100 text-gray-800'}`;
+                        }
+                        evt.target.textContent = '✓ Saved!';
+                        setTimeout(() => evt.target.textContent = 'Save', 2000);
+                    } catch(err) {
+                        alert('Failed to update order status.');
+                    }
+                });
+
+                ordersList.appendChild(card);
+            });
+        } catch(e) {
+            ordersList.innerHTML = `<div class="text-center py-12 text-red-500"><p class="font-bold">Failed to load orders. Please refresh.</p></div>`;
+            console.error(e);
+        }
     }
 
     // State

@@ -3,16 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Products | Royal Funeral Supplies</title>
+    <title>Return Policy | Royal Funeral Supplies</title>
     
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://*.supabase.co; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://*.smartsuppchat.com https://*.smartsupp.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com blob:; media-src 'self'; connect-src 'self' https://*.supabase.co wss://*.smartsuppchat.com https://*.smartsuppchat.com https://*.smartsupp.com https://api.resend.com;">
 
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -30,8 +28,6 @@
     </script>
     
     <link rel="stylesheet" href="./css/styles.css">
-    
-    <!-- Supabase Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
@@ -51,7 +47,7 @@
         
         <div class="hidden md:flex space-x-8 text-slate-gray font-medium">
             <a href="index.html" class="hover:text-teal-clinical transition-colors">Home</a>
-            <a href="products.html" class="text-teal-clinical transition-colors">Products</a>
+            <a href="products.html" class="hover:text-teal-clinical transition-colors">Products</a>
             <a href="about.html" class="hover:text-teal-clinical transition-colors">About Us</a>
             <div class="relative group cursor-pointer py-1">
                 <span class="hover:text-teal-clinical transition-colors">Contact</span>
@@ -63,11 +59,11 @@
         </div>
         
         <div class="flex items-center space-x-6">
-            <a href="checkout.html" class="relative group">
-                <svg class="w-6 h-6 text-navy-blue group-hover:text-teal-clinical transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <a href="checkout.html" class="relative group text-navy-blue hover:text-teal-clinical transition-colors">
+                <svg class="w-6 h-6 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
                 </svg>
-                <span id="cart-count" class="absolute -top-2 -right-2 bg-teal-clinical text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                <span id="cart-count" class="absolute -top-2 -right-2 bg-navy-blue text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
             </a>
             <button class="md:hidden text-navy-blue hover:text-teal-clinical transition-colors">
                 <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
@@ -76,7 +72,7 @@
         
         <div id="mobile-menu" class="hidden md:hidden absolute top-full left-0 w-full mobile-menu-open flex flex-col px-6 pb-4 z-40 transition-all duration-300">
             <a href="index.html">Home</a>
-            <a href="products.html" class="text-teal-clinical">Products</a>
+            <a href="products.html">Products</a>
             <a href="about.html">About Us</a>
             <a href="mailto:contact@muhameddispo.com" class="border-b-0">Contact: contact@muhameddispo.com</a>
             <a href="checkout.html" class="text-teal-clinical flex items-center justify-between border-b-0 mt-2">
@@ -87,35 +83,27 @@
 
     <!-- Header -->
     <header class="bg-slate-gray py-12 text-white">
-        <div class="max-w-7xl mx-auto px-6">
-            <h1 class="text-3xl md:text-4xl font-bold mb-2">Product Directory</h1>
-            <p class="text-slate-200">Browse our comprehensive catalog of professional mortuary equipment.</p>
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <h1 class="text-3xl md:text-5xl font-bold mb-4">Return Policy</h1>
+            <p class="text-slate-200 text-lg">Comprehensive guidelines for returning purchased equipment.</p>
         </div>
     </header>
 
     <!-- Main Content -->
-    <main class="flex-grow py-12 px-6 max-w-7xl mx-auto w-full flex flex-col md:flex-row gap-8">
-        
-        <!-- Sidebar Filters -->
-        <aside class="w-full md:w-64 flex-shrink-0">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <h3 class="font-bold text-navy-blue text-lg mb-4">Categories</h3>
-                <ul id="category-list" class="space-y-3">
-                    <li><a href="products.html" class="text-slate-gray hover:text-teal-clinical transition-colors font-semibold">All Products</a></li>
-                    <!-- Dynamic categories will be injected here -->
-                    <div class="spinner mt-4 border-teal-clinical border-t-navy-blue"></div>
-                </ul>
-            </div>
-        </aside>
+    <main class="flex-grow py-16 px-6 max-w-4xl mx-auto w-full">
+        <div class="bg-white p-8 md:p-12 rounded-xl shadow-sm border border-gray-100 prose prose-lg text-slate-gray leading-relaxed max-w-none">
+            <p>If you are not satisfied with a product that you purchased from Royal Funeral Supplies, Inc., please notify Royal Funeral Supplies, Inc. within <strong>7 days of receipt of product</strong> so a return authorization approval from the manufacturer can be obtained.</p>
 
-        <!-- Product Grid -->
-        <section class="flex-grow">
-            <!-- Dynamic Grid Container -->
-            <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Products will be dynamically rendered here by products.js -->
-            </div>
-        </section>
+            <p>Once the return authorization is obtained and provided to you, you may return the product for a refund of the purchase price, minus the original shipping charge and any applicable manufacturer restocking charge. The product must be returned in new, unused and/or unopened condition in original boxes and with all paperwork, parts, and accessories to ensure credit.</p>
 
+            <p>After the product has been received and inspected by the manufacturer, Royal Funeral Supplies, Inc. will reimburse you for the purchase price less the original shipping charge and any applicable manufacturer restocking charge. The cost of returning a product is the responsibility of the customer.</p>
+
+            <p>If you’d like to know if the manufacturer(s) of the product(s) you are interested in purchasing requires a restocking fee for returned merchandise, please call or email Royal Funeral Supplies, Inc. before purchasing.</p>
+
+            <div class="bg-red-50 text-red-800 p-4 rounded-md border border-red-100 mt-8 font-medium">
+                <p class="m-0">Royal Funeral Supplies, Inc. does not accept any returns or exchanges on custom, special-order items. Royal Funeral Supplies, Inc. does not issue store credit.</p>
+            </div>
+        </div>
     </main>
 
     <!-- Footer -->
@@ -131,7 +119,6 @@
 
     <!-- Scripts -->
     <script src="./js/main.js"></script>
-    <script src="./js/products.js"></script>
     
     <!-- Smartsupp Live Chat script -->
     <script type="text/javascript">

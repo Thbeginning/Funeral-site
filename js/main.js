@@ -200,3 +200,64 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 });
+
+// ==========================================
+// Customer Reviews Injector
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    const track = document.getElementById('reviews-track');
+    if (!track) return;
+
+    const reviews = [
+        { name: "Robert H.", role: "Funeral Director", text: "The heavy-duty mortuary cot we ordered is incredibly well built. Highly recommend Royal." },
+        { name: "Sarah M.", role: "Operations Manager", text: "Shipping was fast and the quality of the prep room tables is unmatched for the price point." },
+        { name: "David T.", role: "Owner", text: "Maxwell was extremely helpful in answering our questions. We will be ordering exclusively from them." },
+        { name: "Jennifer K.", role: "Lead Embalmer", text: "Finally found a reliable supplier for clinical disposables. Consistent quality and great service." },
+        { name: "Michael C.", role: "Transport Specialist", text: "The flexible stretchers have made our removals so much easier. Durable and easy to clean." },
+        { name: "Thomas R.", role: "Funeral Home Owner", text: "Exceptional customer service. The church trucks we received look highly professional and dignified." },
+        { name: "Amanda B.", role: "Care Center Director", text: "Their bariatric equipment is best-in-class. Very sturdy and gives our staff confidence." },
+        { name: "James L.", role: "Mortician", text: "Smooth transactions and fast freight. The stainless steel tables arrived in perfect condition." },
+        { name: "William S.", role: "Facility Manager", text: "Great return policy, though we've never had to use it. Everything arrives exactly as described." },
+        { name: "Elizabeth P.", role: "Procurement", text: "Pricing is very competitive for B2B. The invoicing process is seamless and very professional." },
+        { name: "Richard D.", role: "Owner/Director", text: "I appreciate the 24/7 support. Had an urgent order need and they fulfilled it immediately." },
+        { name: "Joseph E.", role: "Crematory Operator", text: "The body bags are thick, reliable, and exactly what we need for our daily operations." },
+        { name: "Daniel W.", role: "Logistics", text: "Freight tracking was accurate. The equipment was crated perfectly to avoid any damage." },
+        { name: "Lisa F.", role: "Funeral Director", text: "The dressing tables fold easily and store neatly. Great space-savers for our prep room." },
+        { name: "Paul G.", role: "Manager", text: "I love the new site design! Ordering is much easier now and the product catalog is extensive." },
+        { name: "Mark V.", role: "Owner", text: "Royal Funeral Supplies understands what we do. They are partners, not just vendors." },
+        { name: "Steven A.", role: "Embalmer", text: "The fluid collection systems we bought here work flawlessly. High clinical standards." },
+        { name: "Kevin N.", role: "Transport Co. Owner", text: "We equip our entire fleet with their cots. They hold up great to daily heavy use." },
+        { name: "Brian Y.", role: "Operations", text: "Solid urn vaults and great presentation items. The quality reflects well on our business." },
+        { name: "Jason O.", role: "Director", text: "Honestly the best supplier we've used in 15 years. Maxwell knows the industry inside out." }
+    ];
+
+    // Function to generate the HTML for a single review card
+    const createReviewCard = (review) => {
+        return `
+            <div class="inline-block w-80 md:w-96 p-6 mx-4 bg-gray-50 rounded-xl border border-gray-100 shadow-sm whitespace-normal align-top">
+                <div class="flex text-yellow-400 mb-3">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                </div>
+                <p class="text-slate-gray italic mb-4 leading-relaxed line-clamp-3">"${review.text}"</p>
+                <div class="flex items-center mt-auto">
+                    <div class="w-10 h-10 bg-gradient-to-br from-teal-500 to-navy-blue rounded-full flex items-center justify-center text-white font-bold mr-3 flex-shrink-0 text-sm">
+                        ${review.name.charAt(0)}
+                    </div>
+                    <div>
+                        <p class="font-bold text-navy-blue text-sm">${review.name}</p>
+                        <p class="text-xs text-slate-500 uppercase tracking-wider">${review.role}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    };
+
+    const cardsHtml = reviews.map(createReviewCard).join('');
+    // We duplicate the cards twice to ensure smooth infinite scrolling without a visible jump
+    track.innerHTML = cardsHtml + cardsHtml;
+});
+

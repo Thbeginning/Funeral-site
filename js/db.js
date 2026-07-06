@@ -132,6 +132,53 @@ class DatabaseManager {
     }
 
     // ==========================================
+    // ORDERS CRUD
+    // ==========================================
+
+    async getOrders() {
+        if (this.useSupabase) {
+            const { data, error } = await this.client.from('orders').select('*').order('created_at', { ascending: false });
+            if (error) {
+                console.error("Error fetching orders from Supabase:", error);
+                return this.getLocalOrders();
+            }
+            return data;
+        } else {
+            return this.getLocalOrders();
+        }
+    }
+
+    async saveOrder(order) {
+        // order: { id, customer_name, email, phone, company, address, city, state, zip, total_amount, payment_method, status, items }
+        if (this.useSupabase) {
+            const { data, error } = await this.client.from('orders').insert([order]).select();
+            if (error) throw error;
+            return data;
+        } else {
+            const orders = this.getLocalOrders();
+            order.id = order.id || 'ORD-' + Date.now();
+            order.created_at = new Date().toISOString();
+            orders.push(order);
+            localStorage.setItem('royal_orders', JSON.stringify(orders));
+            return [order];
+        }
+    }
+
+    async updateOrderStatus(id, status) {
+        if (this.useSupabase) {
+            const { error } = await this.client.from('orders').update({ status }).eq('id', id);
+            if (error) throw error;
+        } else {
+            const orders = this.getLocalOrders();
+            const index = orders.findIndex(o => o.id === id);
+            if (index > -1) {
+                orders[index].status = status;
+                localStorage.setItem('royal_orders', JSON.stringify(orders));
+            }
+        }
+    }
+
+    // ==========================================
     // LOCAL STORAGE FALLBACK LOGIC
     // ==========================================
 
@@ -147,6 +194,11 @@ class DatabaseManager {
             products = products.filter(p => p.category === groupSlug);
         }
         return products;
+    }
+
+    getLocalOrders() {
+        const data = localStorage.getItem('royal_orders');
+        return data ? JSON.parse(data) : [];
     }
 
     seedLocalData() {

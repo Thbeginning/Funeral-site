@@ -3,16 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Products | Royal Funeral Supplies</title>
+    <title>About Us | Royal Funeral Supplies</title>
     
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://*.supabase.co; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://*.smartsuppchat.com https://*.smartsupp.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com blob:; media-src 'self'; connect-src 'self' https://*.supabase.co wss://*.smartsuppchat.com https://*.smartsuppchat.com https://*.smartsupp.com https://api.resend.com;">
 
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -30,8 +28,6 @@
     </script>
     
     <link rel="stylesheet" href="./css/styles.css">
-    
-    <!-- Supabase Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
@@ -51,8 +47,8 @@
         
         <div class="hidden md:flex space-x-8 text-slate-gray font-medium">
             <a href="index.html" class="hover:text-teal-clinical transition-colors">Home</a>
-            <a href="products.html" class="text-teal-clinical transition-colors">Products</a>
-            <a href="about.html" class="hover:text-teal-clinical transition-colors">About Us</a>
+            <a href="products.html" class="hover:text-teal-clinical transition-colors">Products</a>
+            <a href="about.html" class="text-teal-clinical transition-colors">About Us</a>
             <div class="relative group cursor-pointer py-1">
                 <span class="hover:text-teal-clinical transition-colors">Contact</span>
                 <div class="absolute top-full left-0 mt-0 w-56 bg-white border border-gray-100 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 p-4">
@@ -63,11 +59,11 @@
         </div>
         
         <div class="flex items-center space-x-6">
-            <a href="checkout.html" class="relative group">
-                <svg class="w-6 h-6 text-navy-blue group-hover:text-teal-clinical transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <a href="checkout.html" class="relative group text-navy-blue hover:text-teal-clinical transition-colors">
+                <svg class="w-6 h-6 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
                 </svg>
-                <span id="cart-count" class="absolute -top-2 -right-2 bg-teal-clinical text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                <span id="cart-count" class="absolute -top-2 -right-2 bg-navy-blue text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
             </a>
             <button class="md:hidden text-navy-blue hover:text-teal-clinical transition-colors">
                 <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
@@ -76,8 +72,8 @@
         
         <div id="mobile-menu" class="hidden md:hidden absolute top-full left-0 w-full mobile-menu-open flex flex-col px-6 pb-4 z-40 transition-all duration-300">
             <a href="index.html">Home</a>
-            <a href="products.html" class="text-teal-clinical">Products</a>
-            <a href="about.html">About Us</a>
+            <a href="products.html">Products</a>
+            <a href="about.html" class="text-teal-clinical">About Us</a>
             <a href="mailto:contact@muhameddispo.com" class="border-b-0">Contact: contact@muhameddispo.com</a>
             <a href="checkout.html" class="text-teal-clinical flex items-center justify-between border-b-0 mt-2">
                 Cart <span class="bg-teal-clinical text-white text-xs px-2 py-1 rounded-full cart-count">0</span>
@@ -87,35 +83,28 @@
 
     <!-- Header -->
     <header class="bg-slate-gray py-12 text-white">
-        <div class="max-w-7xl mx-auto px-6">
-            <h1 class="text-3xl md:text-4xl font-bold mb-2">Product Directory</h1>
-            <p class="text-slate-200">Browse our comprehensive catalog of professional mortuary equipment.</p>
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <h1 class="text-3xl md:text-5xl font-bold mb-4">Our Story</h1>
+            <p class="text-slate-200 text-lg">Driven to deliver an unparalleled level of service within the industry.</p>
         </div>
     </header>
 
     <!-- Main Content -->
-    <main class="flex-grow py-12 px-6 max-w-7xl mx-auto w-full flex flex-col md:flex-row gap-8">
-        
-        <!-- Sidebar Filters -->
-        <aside class="w-full md:w-64 flex-shrink-0">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <h3 class="font-bold text-navy-blue text-lg mb-4">Categories</h3>
-                <ul id="category-list" class="space-y-3">
-                    <li><a href="products.html" class="text-slate-gray hover:text-teal-clinical transition-colors font-semibold">All Products</a></li>
-                    <!-- Dynamic categories will be injected here -->
-                    <div class="spinner mt-4 border-teal-clinical border-t-navy-blue"></div>
-                </ul>
-            </div>
-        </aside>
-
-        <!-- Product Grid -->
-        <section class="flex-grow">
-            <!-- Dynamic Grid Container -->
-            <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Products will be dynamically rendered here by products.js -->
-            </div>
-        </section>
-
+    <main class="flex-grow py-16 px-6 max-w-4xl mx-auto w-full">
+        <div class="prose prose-lg text-slate-gray leading-relaxed max-w-none">
+            <p class="mb-6">Royal Funeral Supplies has remained family-owned and operated since David Nrimah launched the business in 2018. From the very beginning we have been driven to deliver an unparalleled level of service within the industry.</p>
+            
+            <p class="mb-6">In 2023, Maxwell Funer purchased the business, sharing the same vision as started by Mr. Nrimah. Maxwell brings hands-on experience of personally using these products through his work at the coroner’s office and his own removal service. When you have specific questions, you won’t get the typical salesperson runaround from us. Maxwell has been in your shoes and will walk you through the process of finding the right products.</p>
+            
+            <p class="mb-10">We offer a wide array of products from industry brand leaders, including operating tables, mortuary cots, body bags, flexible stretchers, church trucks, folding dressing tables, marble urn vaults, urn and jewelry bags, flag cases and much more.</p>
+            
+            <h2 class="text-2xl font-bold text-navy-blue mb-4">What We Do</h2>
+            <p class="mb-6">At Royal Funeral Supplies we understand it takes more than product access and awareness to be a good supplier – we have hands-on experience for each and every item we recommend.</p>
+            
+            <p class="mb-6">We provide unparalleled service and our focus is always on making your best interests our top priority. Relationships matter – and we believe in treating you right, providing straightforward answers to your questions and meeting your unique needs.</p>
+            
+            <p>Royal Funeral Supplies takes pride in making every client a 100% satisfied client. If for some reason we miss an expectation, we’ll make it right.</p>
+        </div>
     </main>
 
     <!-- Footer -->
@@ -131,7 +120,6 @@
 
     <!-- Scripts -->
     <script src="./js/main.js"></script>
-    <script src="./js/products.js"></script>
     
     <!-- Smartsupp Live Chat script -->
     <script type="text/javascript">

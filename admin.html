@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | Royal Funeral Supplies</title>
     
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://*.supabase.co; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com blob:; connect-src 'self' https://*.supabase.co;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://*.supabase.co; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://*.smartsuppchat.com https://*.smartsupp.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com blob:; media-src 'self'; connect-src 'self' https://*.supabase.co wss://*.smartsuppchat.com https://*.smartsuppchat.com https://*.smartsupp.com https://api.resend.com;">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -64,65 +64,98 @@
 
     <!-- Dashboard Content -->
     <main class="flex-grow py-8 px-6 max-w-7xl mx-auto w-full hidden" id="admin-main">
-        
-        <!-- View 1: Groups Master List -->
-        <div id="view-groups-list">
-            <div class="flex justify-between items-center mb-6">
-                <div>
-                    <h2 class="text-3xl font-bold text-navy-blue">Manage Inventory</h2>
-                    <p class="text-slate-gray mt-1">Select a group to manage its products, or create a new group.</p>
+
+        <!-- Tab Navigation -->
+        <div class="flex border-b border-gray-200 mb-8 gap-2">
+            <button id="tab-inventory" class="admin-tab active px-6 py-3 font-semibold text-sm border-b-2 border-teal-clinical text-teal-clinical transition-colors">
+                📦 Inventory
+            </button>
+            <button id="tab-orders" class="admin-tab px-6 py-3 font-semibold text-sm border-b-2 border-transparent text-slate-gray hover:text-navy-blue transition-colors">
+                🛒 Orders
+            </button>
+        </div>
+
+        <!-- INVENTORY PANEL -->
+        <div id="panel-inventory">
+            <!-- View 1: Groups Master List -->
+            <div id="view-groups-list">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="text-3xl font-bold text-navy-blue">Manage Inventory</h2>
+                        <p class="text-slate-gray mt-1">Select a group to manage its products, or create a new group.</p>
+                    </div>
+                    <button id="btn-add-group" class="btn-primary px-6 py-3 rounded-lg font-bold shadow-md hover:shadow-lg transition-shadow">+ Create New Group</button>
                 </div>
-                <button id="btn-add-group" class="btn-primary px-6 py-3 rounded-lg font-bold shadow-md hover:shadow-lg transition-shadow">+ Create New Group</button>
+                
+                <div id="groups-grid-admin" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Loaded by JS -->
+                </div>
             </div>
-            
-            <div id="groups-grid-admin" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Loaded by JS -->
+
+            <!-- View 2: Group Details & Products -->
+            <div id="view-group-detail" class="hidden">
+                <button id="btn-back-to-groups" class="text-slate-gray hover:text-navy-blue mb-6 flex items-center font-semibold transition-colors">
+                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    Back to All Groups
+                </button>
+
+                <!-- Group Header -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col md:flex-row items-center gap-6 mb-8">
+                    <div class="w-24 h-24 flex-shrink-0 bg-gray-200 rounded-lg overflow-hidden border border-gray-200">
+                        <img id="detail-group-image" src="" class="w-full h-full object-cover">
+                    </div>
+                    <div class="flex-grow">
+                        <h2 id="detail-group-name" class="text-3xl font-bold text-navy-blue mb-1">Group Name</h2>
+                        <p id="detail-group-desc" class="text-slate-gray text-sm">Group description here.</p>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button id="btn-edit-current-group" class="px-4 py-2 border border-gray-300 rounded text-navy-blue font-bold hover:bg-gray-50 transition-colors">Edit Group Info</button>
+                        <button id="btn-delete-current-group" class="px-4 py-2 border border-red-300 text-red-600 rounded font-bold hover:bg-red-50 transition-colors">Delete Group</button>
+                    </div>
+                </div>
+
+                <!-- Products Table -->
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-2xl font-bold text-navy-blue">Products in this Group</h3>
+                    <button id="btn-add-product" class="bg-navy-blue hover:bg-teal-clinical text-white px-4 py-2 rounded font-bold transition-colors shadow-sm">+ Add Product Here</button>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-100 border-b border-gray-200 text-slate-gray">
+                                <th class="p-4 font-semibold text-sm">Image</th>
+                                <th class="p-4 font-semibold text-sm">Name</th>
+                                <th class="p-4 font-semibold text-sm">Price</th>
+                                <th class="p-4 font-semibold text-sm">Tier</th>
+                                <th class="p-4 font-semibold text-sm text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-products-tbody">
+                            <!-- Loaded by JS -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
-        <!-- View 2: Group Details & Products -->
-        <div id="view-group-detail" class="hidden">
-            <button id="btn-back-to-groups" class="text-slate-gray hover:text-navy-blue mb-6 flex items-center font-semibold transition-colors">
-                <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-                Back to All Groups
-            </button>
-
-            <!-- Group Header Header -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col md:flex-row items-center gap-6 mb-8">
-                <div class="w-24 h-24 flex-shrink-0 bg-gray-200 rounded-lg overflow-hidden border border-gray-200">
-                    <img id="detail-group-image" src="" class="w-full h-full object-cover">
+        <!-- ORDERS PANEL -->
+        <div id="panel-orders" class="hidden">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 class="text-3xl font-bold text-navy-blue">Customer Orders</h2>
+                    <p class="text-slate-gray mt-1">View and manage all incoming orders.</p>
                 </div>
-                <div class="flex-grow">
-                    <h2 id="detail-group-name" class="text-3xl font-bold text-navy-blue mb-1">Group Name</h2>
-                    <p id="detail-group-desc" class="text-slate-gray text-sm">Group description here.</p>
-                </div>
-                <div class="flex space-x-3">
-                    <button id="btn-edit-current-group" class="px-4 py-2 border border-gray-300 rounded text-navy-blue font-bold hover:bg-gray-50 transition-colors">Edit Group Info</button>
-                    <button id="btn-delete-current-group" class="px-4 py-2 border border-red-300 text-red-600 rounded font-bold hover:bg-red-50 transition-colors">Delete Group</button>
-                </div>
+                <button id="btn-refresh-orders" class="border border-gray-300 hover:bg-gray-50 px-4 py-2 rounded-lg font-semibold text-sm transition-colors flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    Refresh
+                </button>
             </div>
-
-            <!-- Products Table for this Group -->
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-2xl font-bold text-navy-blue">Products in this Group</h3>
-                <button id="btn-add-product" class="bg-navy-blue hover:bg-teal-clinical text-white px-4 py-2 rounded font-bold transition-colors shadow-sm">+ Add Product Here</button>
-            </div>
-            
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-gray-100 border-b border-gray-200 text-slate-gray">
-                            <th class="p-4 font-semibold text-sm">Image</th>
-                            <th class="p-4 font-semibold text-sm">Name</th>
-                            <th class="p-4 font-semibold text-sm">Price</th>
-                            <th class="p-4 font-semibold text-sm">Tier</th>
-                            <th class="p-4 font-semibold text-sm text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="admin-products-tbody">
-                        <!-- Loaded by JS -->
-                    </tbody>
-                </table>
+            <div id="orders-list" class="space-y-4">
+                <div class="text-center py-12 text-slate-gray">
+                    <p class="text-4xl mb-3">🛒</p>
+                    <p class="font-semibold">Loading orders...</p>
+                </div>
             </div>
         </div>
 
