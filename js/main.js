@@ -42,7 +42,7 @@ class CartManager {
             });
         }
         this.saveCart();
-        this.showToast('Item added to cart.');
+        this.showAddToCartModal(product, quantity);
     }
 
     removeItem(productId) {
@@ -101,6 +101,55 @@ class CartManager {
                 }
             }, 300);
         }, 3000);
+    }
+
+    showAddToCartModal(product, quantity) {
+        // Remove existing modal if any
+        const existing = document.getElementById('add-to-cart-modal');
+        if (existing) existing.remove();
+
+        const modal = document.createElement('div');
+        modal.id = 'add-to-cart-modal';
+        modal.className = 'fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300';
+        
+        const box = document.createElement('div');
+        box.className = 'bg-white rounded-2xl shadow-2xl p-6 md:p-8 max-w-md w-full text-center relative mx-4';
+        
+        box.innerHTML = `
+            <button id="modal-close-x" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 focus:outline-none transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <div class="mx-auto w-16 h-16 bg-teal-50 text-teal-clinical rounded-full flex items-center justify-center mb-4 shadow-inner">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <h2 class="text-2xl font-bold text-navy-blue mb-4">Added to Cart!</h2>
+            
+            <div class="flex items-center gap-4 bg-gray-50 rounded-lg p-4 mb-6 text-left border border-gray-100">
+                <img src="${product.image || 'image-1.png'}" alt="${product.name}" class="w-16 h-16 object-cover rounded-md bg-white border border-gray-200">
+                <div>
+                    <h3 class="font-bold text-navy-blue text-sm line-clamp-2">${product.name}</h3>
+                    <p class="text-teal-clinical font-bold mt-1">${formatCurrency(product.price)} <span class="text-xs text-slate-gray font-normal">x ${quantity}</span></p>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3">
+                <button id="modal-continue-btn" class="flex-1 py-3 px-4 bg-white border-2 border-teal-clinical text-teal-clinical rounded-md font-bold hover:bg-teal-50 transition-colors">
+                    Continue Shopping
+                </button>
+                <button id="modal-checkout-btn" class="flex-1 py-3 px-4 bg-teal-clinical text-white rounded-md font-bold shadow-lg hover:bg-teal-hover transition-colors">
+                    View Cart & Checkout
+                </button>
+            </div>
+        `;
+        
+        modal.appendChild(box);
+        document.body.appendChild(modal);
+
+        document.getElementById('modal-close-x').onclick = () => modal.remove();
+        document.getElementById('modal-continue-btn').onclick = () => modal.remove();
+        document.getElementById('modal-checkout-btn').onclick = () => {
+            window.location.href = 'checkout.html';
+        };
     }
 }
 

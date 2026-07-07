@@ -1,4 +1,4 @@
-// checkout.js - Checkout Logic & Order Processing with DB Save
+// checkout.js - Checkout Logic, DB Save & Email Invoice System
 
 document.addEventListener('DOMContentLoaded', () => {
     const cartContainer = document.getElementById('checkout-cart-items');
@@ -7,13 +7,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const checkoutNotice = document.getElementById('checkout-notice');
     const checkoutForm = document.getElementById('checkout-form');
 
-    if (!cartContainer || !window.cartManager) return; // Only run on checkout page
+    if (!cartContainer || !window.cartManager) return;
+
+    // Initialize EmailJS with public key
+    if (window.emailjs && window.EMAIL_CONFIG && window.EMAIL_CONFIG.PUBLIC_KEY !== 'YOUR_PUBLIC_KEY') {
+        emailjs.init(window.EMAIL_CONFIG.PUBLIC_KEY);
+    }
 
     renderCartItems();
 
     function renderCartItems() {
         const cart = window.cartManager.cart;
-        cartContainer.replaceChildren(); // Secure clear
+        cartContainer.replaceChildren();
 
         if (cart.length === 0) {
             cartContainer.innerHTML = '<p class="text-slate-gray text-center py-8">Your cart is empty. <a href="products.html" class="text-teal-clinical font-bold underline">Browse Products</a></p>';
@@ -85,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
             checkoutBtn.textContent = 'Request Quote & Submit Order';
             checkoutNotice.classList.remove('hidden');
         } else {
-            checkoutBtn.textContent = 'Place Order';
+            checkoutBtn.textContent = 'Place Order & Receive Invoice';
             checkoutNotice.classList.add('hidden');
         }
     }
@@ -100,7 +105,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Client-side Validation
             const firstName = document.getElementById('firstName').value.trim();
             const lastName = document.getElementById('lastName').value.trim();
             const email = document.getElementById('email').value.trim();
@@ -130,12 +134,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const orderId = 'RFS-' + Math.random().toString(36).substr(2, 7).toUpperCase();
 
             // Show Processing State
-            const originalBtnText = checkoutBtn.textContent;
             checkoutBtn.disabled = true;
             checkoutBtn.innerHTML = '<span class="inline-block animate-spin mr-2">⏳</span> Processing...';
 
+            // Build items list
+            const itemsList = cart.map(i =>
+                `${i.quantity}x ${i.name} — ${formatCurrency(i.price)} each = ${formatCurrency(i.price * i.quantity)}`
+            ).join('\n');
+
+            // Payment instructions
+            const paymentInstructions = getPaymentDetails(paymentMethod);
+
             try {
-                // Save order to database
+                // 1. Save order to database
                 const orderData = {
                     id: orderId,
                     customer_name: `${firstName} ${lastName}`,
@@ -152,16 +163,69 @@ document.addEventListener('DOMContentLoaded', () => {
                     items: JSON.stringify(cart.map(i => ({ name: i.name, qty: i.quantity, price: i.price }))),
                     created_at: new Date().toISOString()
                 };
-
                 await window.dbManager.saveOrder(orderData);
 
-                // Show Success Modal
-                showSuccessModal(orderId, paymentMethod, hasTier2, email);
+                // 2. Send Emails via EmailJS (if configured)
+                const emailConfigured = window.EMAIL_CONFIG &&
+                    window.EMAIL_CONFIG.PUBLIC_KEY !== 'YOUR_PUBLIC_KEY' &&
+                    window.emailjs;
+
+                if (emailConfigured) {
+                    const sharedParams = {
+                        order_id: orderId,
+                        customer_name: `${firstName} ${lastName}`,
+                        customer_email: email,
+                        customer_phone: phone,
+                        customer_company: company || 'N/A',
+                        customer_address: `${address}, ${city}, ${state} ${zip}`,
+                        payment_method: paymentMethod,
+                        payment_instructions: paymentInstructions,
+                        items_list: itemsList,
+                        total_amount: formatCurrency(total),
+                        order_date: new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
+                        freight_note: hasTier2 ? 'NOTE: Your order contains freight items. Shipping cost will be calculated and communicated to you.' : ''
+                    };
+
+                    // Send invoice to CUSTOMER
+                    const customerParams = {
+                        ...sharedParams,
+                        to_email: email,
+                        to_name: `${firstName} ${lastName}`
+                    };
+
+                    // Send notification to ADMIN
+                    const adminParams = {
+                        ...sharedParams,
+                        to_email: window.EMAIL_CONFIG.ADMIN_EMAIL,
+                        to_name: 'Royal Funeral Supplies Admin'
+                    };
+
+                    // Send both emails (don't block on email failure)
+                    try {
+                        await Promise.all([
+                            emailjs.send(
+                                window.EMAIL_CONFIG.SERVICE_ID,
+                                window.EMAIL_CONFIG.CUSTOMER_TEMPLATE_ID,
+                                customerParams
+                            ),
+                            emailjs.send(
+                                window.EMAIL_CONFIG.SERVICE_ID,
+                                window.EMAIL_CONFIG.ADMIN_TEMPLATE_ID,
+                                adminParams
+                            )
+                        ]);
+                        console.log('Emails sent successfully.');
+                    } catch (emailErr) {
+                        console.warn('Email send failed (order still saved):', emailErr);
+                    }
+                }
+
+                // 3. Show Success Modal
+                showSuccessModal(orderId, paymentMethod, hasTier2, email, emailConfigured);
 
             } catch (err) {
-                console.error('Order save error:', err);
-                // Even if DB save fails, still confirm the order to the customer
-                showSuccessModal(orderId, paymentMethod, hasTier2, email);
+                console.error('Order error:', err);
+                showSuccessModal(orderId, paymentMethod, hasTier2, email, false);
             }
         });
     }
@@ -180,19 +244,23 @@ document.addEventListener('DOMContentLoaded', () => {
     function getPaymentDetails(method) {
         const details = {
             'Bank Transfer': 'Our team will email you the ACH/Wire routing and account number within 1 business day.',
-            'Zelle': 'Payment can be sent via Zelle to <strong>contact@muhameddispo.com</strong>. Our team will confirm receipt.',
-            'CashApp': 'Payment can be sent via CashApp to <strong>$RoyalFuneralSupplies</strong>. Our team will confirm receipt.',
+            'Zelle': 'Please send payment via Zelle to: contact@royalfuneralsupplies.com. Our team will confirm receipt.',
+            'CashApp': 'Please send payment via CashApp to: $RoyalFuneralSupplies. Our team will confirm receipt.',
             'Crypto': 'Our team will email you the BTC/ETH wallet address for your payment within 1 business day.'
         };
         return details[method] || 'Our team will contact you with payment instructions shortly.';
     }
 
-    function showSuccessModal(orderId, paymentMethod, hasTier2, email) {
+    function showSuccessModal(orderId, paymentMethod, hasTier2, email, emailSent) {
         const modal = document.createElement('div');
         modal.className = 'fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-60 backdrop-blur-sm';
 
         const box = document.createElement('div');
         box.className = 'bg-white rounded-2xl shadow-2xl p-8 max-w-lg w-full text-center';
+
+        const emailNote = emailSent
+            ? `<p class="text-xs text-green-600 font-semibold mb-4">📧 Invoice sent to <strong>${email}</strong></p>`
+            : `<p class="text-xs text-slate-400 mb-4">Our team will follow up at <strong>${email}</strong> with your invoice.</p>`;
 
         box.innerHTML = `
             <div class="mx-auto w-20 h-20 bg-teal-50 text-teal-clinical rounded-full flex items-center justify-center mb-6 shadow-inner">
@@ -200,14 +268,14 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <h2 class="text-2xl font-bold text-navy-blue mb-2">${hasTier2 ? 'Quote Request Received!' : 'Order Placed Successfully!'}</h2>
             <p class="text-slate-gray mb-4">Thank you for your order. Your Reference ID is:</p>
-            <div class="bg-gray-50 border border-gray-200 rounded-lg px-6 py-3 inline-block mb-6">
+            <div class="bg-gray-50 border border-gray-200 rounded-lg px-6 py-3 inline-block mb-4">
                 <span class="text-2xl font-mono font-bold text-teal-clinical tracking-widest">${orderId}</span>
             </div>
+            ${emailNote}
             <div class="bg-blue-50 border border-blue-100 rounded-lg p-4 text-left mb-6">
                 <p class="text-sm font-bold text-navy-blue mb-1">💳 ${paymentMethod} Payment Instructions</p>
                 <p class="text-sm text-slate-gray">${getPaymentDetails(paymentMethod)}</p>
             </div>
-            <p class="text-xs text-slate-400 mb-6">A confirmation will be sent to <strong>${email}</strong>. If you don't hear from us within 24 hours, please contact us at contact@muhameddispo.com.</p>
             <button id="modal-close-btn" class="btn-primary w-full py-3 rounded-md font-bold text-base">Return to Home</button>
         `;
 
