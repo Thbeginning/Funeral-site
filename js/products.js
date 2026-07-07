@@ -20,17 +20,21 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const li = document.createElement('li');
                 const a = document.createElement('a');
                 a.href = `products.html?category=${group.slug}`;
+                a.className = 'block py-2 px-3 rounded-lg transition-colors font-semibold ';
                 
                 // Highlight active category
                 if (categoryFilter === group.slug) {
-                    a.className = 'text-teal-clinical font-bold transition-colors';
+                    a.className += 'bg-teal-50 text-teal-clinical';
                     // Update header with category details
                     const headerTitle = document.getElementById('page-header-title');
                     const headerDesc = document.getElementById('page-header-desc');
+                    const currentCategoryLabel = document.getElementById('current-category-label');
+                    
                     if (headerTitle) headerTitle.textContent = group.name;
                     if (headerDesc) headerDesc.textContent = group.description || `Browse our selection of ${group.name}.`;
+                    if (currentCategoryLabel) currentCategoryLabel.textContent = group.name;
                 } else {
-                    a.className = 'text-slate-gray hover:text-teal-clinical transition-colors';
+                    a.className += 'text-slate-gray hover:bg-gray-50 hover:text-teal-clinical';
                 }
                 a.textContent = group.name;
                 li.appendChild(a);
@@ -39,6 +43,27 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     } catch(e) {
         console.error("Error loading categories sidebar", e);
+    }
+
+    // Dropdown Toggle Logic
+    const dropdownBtn = document.getElementById('category-dropdown-btn');
+    const dropdownContent = document.getElementById('category-dropdown-content');
+    const dropdownIcon = document.getElementById('category-dropdown-icon');
+
+    if (dropdownBtn && dropdownContent) {
+        dropdownBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdownContent.classList.toggle('hidden');
+            dropdownIcon.classList.toggle('rotate-180');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!dropdownBtn.contains(e.target) && !dropdownContent.contains(e.target)) {
+                dropdownContent.classList.add('hidden');
+                dropdownIcon.classList.remove('rotate-180');
+            }
+        });
     }
 
     // 2. Fetch & Render Products Grid

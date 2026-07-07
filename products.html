@@ -97,15 +97,28 @@
     <!-- Main Content -->
     <main class="flex-grow py-12 px-6 max-w-7xl mx-auto w-full flex flex-col md:flex-row gap-8">
         
-        <!-- Sidebar Filters -->
-        <aside class="w-full md:w-64 flex-shrink-0">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <h3 class="font-bold text-navy-blue text-lg mb-4">Categories</h3>
-                <ul id="category-list" class="space-y-3">
-                    <li><a href="products.html" class="text-slate-gray hover:text-teal-clinical transition-colors font-semibold">All Products</a></li>
-                    <!-- Dynamic categories will be injected here -->
-                    <div class="spinner mt-4 border-teal-clinical border-t-navy-blue"></div>
-                </ul>
+        <!-- Sidebar Filters (Dropdown Menu) -->
+        <aside class="w-full md:w-64 flex-shrink-0 z-10">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 relative">
+                <button id="category-dropdown-btn" class="w-full p-4 md:p-5 flex justify-between items-center bg-white hover:bg-gray-50 transition-colors focus:outline-none rounded-xl">
+                    <div class="text-left flex-grow pr-4">
+                        <span class="text-xs text-slate-gray uppercase tracking-wider font-semibold block mb-1">Category Filter</span>
+                        <span id="current-category-label" class="font-bold text-navy-blue text-base md:text-lg block truncate">All Products</span>
+                    </div>
+                    <div class="w-8 h-8 rounded-full bg-teal-50 flex items-center justify-center flex-shrink-0">
+                        <svg id="category-dropdown-icon" class="w-5 h-5 text-teal-clinical transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                </button>
+                
+                <div id="category-dropdown-content" class="hidden absolute top-full left-0 w-full mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-20">
+                    <ul id="category-list" class="p-4 space-y-2 max-h-80 overflow-y-auto">
+                        <li>
+                            <a href="products.html" class="block py-2 px-3 rounded-lg text-slate-gray hover:bg-teal-50 hover:text-teal-clinical transition-colors font-semibold">All Products</a>
+                        </li>
+                        <!-- Dynamic categories will be injected here -->
+                        <div class="spinner my-4 mx-auto border-teal-clinical border-t-navy-blue"></div>
+                    </ul>
+                </div>
             </div>
         </aside>
 
