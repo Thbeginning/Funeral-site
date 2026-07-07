@@ -408,7 +408,7 @@
     async function sendInvoiceEmail(data) {
         var html = buildEmailHtml(data);
         var payload = JSON.stringify({
-            from: 'Royal Funeral Supplies <onboarding@resend.dev>',
+            from: 'Royal Funeral Supplies <contact@royalfuneralsupplies.com>',
             to: [data.customerEmail, ADMIN_EMAIL],
             subject: 'Order Confirmation ' + data.orderId + ' — Royal Funeral Supplies',
             html: html
