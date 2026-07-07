@@ -1,21 +1,24 @@
 // checkout.js - Checkout Logic, DB Save & Email Invoice System
+// Waits for cartManager to be ready before initialising
 
-document.addEventListener('DOMContentLoaded', () => {
+function initCheckout() {
     const cartContainer = document.getElementById('checkout-cart-items');
     const cartTotalElement = document.getElementById('checkout-total');
     const checkoutBtn = document.getElementById('submit-order-btn');
     const checkoutNotice = document.getElementById('checkout-notice');
     const checkoutForm = document.getElementById('checkout-form');
 
-    if (!cartContainer || !window.cartManager) return;
+    // Guard: only run on the checkout page
+    if (!cartContainer || !cartTotalElement || !checkoutBtn || !checkoutForm) return;
 
     renderCartItems();
 
+    // ─── Render cart items & live total ───────────────────────────────────────
     function renderCartItems() {
         const cart = window.cartManager.cart;
-        cartContainer.innerHTML = ''; // Safely clear container for older mobile browsers
+        cartContainer.innerHTML = '';
 
-        if (cart.length === 0) {
+        if (!cart || cart.length === 0) {
             cartContainer.innerHTML = '<p class="text-slate-gray text-center py-8">Your cart is empty. <a href="products.html" class="text-teal-clinical font-bold underline">Browse Products</a></p>';
             cartTotalElement.textContent = '$0.00';
             checkoutBtn.disabled = true;
@@ -29,49 +32,55 @@ document.addEventListener('DOMContentLoaded', () => {
         let total = 0;
         let hasTier2 = false;
 
-        cart.forEach(item => {
-            total += item.price * item.quantity;
+        cart.forEach(function(item) {
+            const itemPrice = parseFloat(item.price) || 0;
+            const itemQty   = parseInt(item.quantity, 10) || 1;
+            const lineTotal = itemPrice * itemQty;
+            total += lineTotal;
             if (item.tier === 2) hasTier2 = true;
 
             const row = document.createElement('div');
             row.className = 'flex justify-between items-center py-4 border-b border-gray-100 last:border-0';
 
+            // Left: product info
             const itemInfo = document.createElement('div');
             itemInfo.className = 'flex-grow pr-4';
+
             const itemName = document.createElement('h4');
             itemName.className = 'font-bold text-navy-blue text-sm';
             itemName.textContent = item.name;
 
-            const itemQty = document.createElement('p');
-            itemQty.className = 'text-xs text-slate-gray mt-1';
-            itemQty.textContent = `Qty: ${item.quantity} × ${formatCurrency(item.price)}`;
-
-            if (item.tier === 2) {
-                const tierBadge = document.createElement('span');
-                tierBadge.className = 'inline-block mt-1 bg-amber-100 text-amber-700 text-xs px-2 py-0.5 rounded-full font-medium';
-                tierBadge.textContent = '🚚 Freight Item';
-                itemInfo.appendChild(tierBadge);
-            }
+            const itemQtyEl = document.createElement('p');
+            itemQtyEl.className = 'text-xs text-slate-gray mt-1';
+            itemQtyEl.textContent = 'Qty: ' + itemQty + ' \u00D7 ' + formatCurrency(itemPrice);
 
             itemInfo.appendChild(itemName);
-            itemInfo.appendChild(itemQty);
+            itemInfo.appendChild(itemQtyEl);
 
-            const itemTotal = document.createElement('div');
-            itemTotal.className = 'font-bold text-teal-clinical flex-shrink-0 text-sm';
-            itemTotal.textContent = formatCurrency(item.price * item.quantity);
+            if (item.tier === 2) {
+                const badge = document.createElement('span');
+                badge.className = 'inline-block mt-1 bg-amber-100 text-amber-700 text-xs px-2 py-0.5 rounded-full font-medium';
+                badge.textContent = '\uD83D\uDE9A Freight Item';
+                itemInfo.appendChild(badge);
+            }
+
+            // Right: line total + remove button
+            const itemTotalEl = document.createElement('div');
+            itemTotalEl.className = 'font-bold text-teal-clinical flex-shrink-0 text-sm';
+            itemTotalEl.textContent = formatCurrency(lineTotal);
 
             const removeBtn = document.createElement('button');
             removeBtn.className = 'ml-3 text-red-400 hover:text-red-600 text-xs focus:outline-none transition-colors flex-shrink-0';
-            removeBtn.textContent = '✕';
+            removeBtn.textContent = '\u2715';
             removeBtn.setAttribute('aria-label', 'Remove item');
-            removeBtn.onclick = () => {
+            removeBtn.onclick = function() {
                 window.cartManager.removeItem(item.id);
                 renderCartItems();
             };
 
             const rightSide = document.createElement('div');
             rightSide.className = 'flex items-center';
-            rightSide.appendChild(itemTotal);
+            rightSide.appendChild(itemTotalEl);
             rightSide.appendChild(removeBtn);
 
             row.appendChild(itemInfo);
@@ -79,200 +88,274 @@ document.addEventListener('DOMContentLoaded', () => {
             cartContainer.appendChild(row);
         });
 
+        // Update subtotal display
         cartTotalElement.textContent = formatCurrency(total);
 
+        // Update button label
         if (hasTier2) {
             checkoutBtn.textContent = 'Request Quote & Submit Order';
-            checkoutNotice.classList.remove('hidden');
+            if (checkoutNotice) checkoutNotice.classList.remove('hidden');
         } else {
             checkoutBtn.textContent = 'Place Order & Receive Invoice';
-            checkoutNotice.classList.add('hidden');
+            if (checkoutNotice) checkoutNotice.classList.add('hidden');
         }
     }
 
-    // ---- Form Submission ----
-    if (checkoutForm) {
-        checkoutForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+    // ─── Form Submission ──────────────────────────────────────────────────────
+    checkoutForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
 
-            if (window.cartManager.cart.length === 0) {
-                showAlert('Your cart is empty. Please add items before checking out.');
-                return;
-            }
+        if (!window.cartManager.cart || window.cartManager.cart.length === 0) {
+            showAlert('Your cart is empty. Please add items before checking out.');
+            return;
+        }
 
-            const firstName = document.getElementById('firstName').value.trim();
-            const lastName = document.getElementById('lastName').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const phone = document.getElementById('phone').value.trim();
-            const address = document.getElementById('address').value.trim();
-            const city = document.getElementById('city').value.trim();
-            const state = document.getElementById('state').value.trim();
-            const zip = document.getElementById('zip').value.trim();
-            const company = document.getElementById('company').value.trim();
+        const firstName = document.getElementById('firstName').value.trim();
+        const lastName  = document.getElementById('lastName').value.trim();
+        const email     = document.getElementById('email').value.trim();
+        const phone     = document.getElementById('phone').value.trim();
+        const address   = document.getElementById('address').value.trim();
+        const city      = document.getElementById('city').value.trim();
+        const state     = document.getElementById('state').value.trim();
+        const zip       = document.getElementById('zip').value.trim();
+        const company   = document.getElementById('company').value.trim();
 
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            const phoneRegex = /^[\d\s\-\+\(\)]{7,15}$/;
+        // Validation
+        var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        var phoneRegex = /^[\d\s\-\+\(\)]{7,15}$/;
+        if (!emailRegex.test(email)) { showAlert('Please enter a valid email address.'); return; }
+        if (!phoneRegex.test(phone)) { showAlert('Please enter a valid phone number.'); return; }
 
-            if (!emailRegex.test(email)) {
-                showAlert('Please enter a valid email address.');
-                return;
-            }
-            if (!phoneRegex.test(phone)) {
-                showAlert('Please enter a valid phone number.');
-                return;
-            }
+        const paymentMethodEl = document.querySelector('input[name="payment"]:checked');
+        if (!paymentMethodEl) { showAlert('Please select a payment method.'); return; }
+        const paymentMethod = paymentMethodEl.value;
 
-            const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
-            const cart = window.cartManager.cart;
-            const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-            const hasTier2 = cart.some(item => item.tier === 2);
-            const orderId = 'RFS-' + Math.random().toString(36).substr(2, 7).toUpperCase();
+        const cart    = window.cartManager.cart;
+        const total   = cart.reduce(function(sum, i) { return sum + (parseFloat(i.price)||0) * (parseInt(i.quantity,10)||1); }, 0);
+        const hasTier2 = cart.some(function(i) { return i.tier === 2; });
+        const orderId = 'RFS-' + Math.random().toString(36).substr(2, 7).toUpperCase();
+        const orderDate = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-            // Show Processing State
-            checkoutBtn.disabled = true;
-            checkoutBtn.innerHTML = '<span class="inline-block animate-spin mr-2">⏳</span> Processing...';
+        // Processing state
+        checkoutBtn.disabled = true;
+        checkoutBtn.innerHTML = '<span style="display:inline-block;animation:spin 1s linear infinite;margin-right:8px;">\u23F3</span> Processing...';
 
-            // Build items list
-            const itemsList = cart.map(i =>
-                `${i.quantity}x ${i.name} — ${formatCurrency(i.price)} each = ${formatCurrency(i.price * i.quantity)}`
-            ).join('\n');
+        // Build items table rows for email
+        var itemsTableRows = cart.map(function(i) {
+            var p = parseFloat(i.price)||0;
+            var q = parseInt(i.quantity,10)||1;
+            return '<tr><td style="padding:8px 12px;border-bottom:1px solid #eaeaea;">' + i.name + '</td><td style="padding:8px 12px;border-bottom:1px solid #eaeaea;text-align:center;">' + q + '</td><td style="padding:8px 12px;border-bottom:1px solid #eaeaea;text-align:right;">' + formatCurrency(p) + '</td><td style="padding:8px 12px;border-bottom:1px solid #eaeaea;text-align:right;font-weight:bold;">' + formatCurrency(p*q) + '</td></tr>';
+        }).join('');
 
-            // Payment instructions
-            const paymentInstructions = getPaymentDetails(paymentMethod);
+        // HTML email body
+        var emailHtml = '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,sans-serif;">'
+            + '<table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:30px 0;">'
+            + '<table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">'
+            // Header
+            + '<tr><td style="background:#0f172a;padding:30px 40px;text-align:center;">'
+            + '<h1 style="color:#ffffff;margin:0;font-size:22px;letter-spacing:1px;">ROYAL FUNERAL SUPPLIES</h1>'
+            + '<p style="color:#0d9488;margin:4px 0 0;font-size:13px;">Order Confirmation Invoice</p>'
+            + '</td></tr>'
+            // Body
+            + '<tr><td style="padding:30px 40px;">'
+            + '<p style="color:#0f172a;font-size:15px;margin:0 0 8px;">Dear <strong>' + firstName + ' ' + lastName + '</strong>,</p>'
+            + '<p style="color:#475569;font-size:14px;margin:0 0 24px;">Thank you for your order! Your order has been received and is now being processed.</p>'
+            // Order ID box
+            + '<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:16px 20px;margin-bottom:24px;text-align:center;">'
+            + '<p style="margin:0;font-size:12px;color:#475569;text-transform:uppercase;letter-spacing:1px;">Order Reference ID</p>'
+            + '<p style="margin:6px 0 0;font-size:24px;font-weight:bold;color:#0d9488;letter-spacing:3px;font-family:monospace;">' + orderId + '</p>'
+            + '<p style="margin:6px 0 0;font-size:12px;color:#94a3b8;">' + orderDate + '</p>'
+            + '</div>'
+            // Payment notice
+            + '<div style="background:#fefce8;border-left:4px solid #f59e0b;padding:14px 18px;border-radius:0 6px 6px 0;margin-bottom:24px;">'
+            + '<p style="margin:0;font-size:13px;font-weight:bold;color:#92400e;">\uD83D\uDCB3 Payment Method: ' + paymentMethod + '</p>'
+            + '<p style="margin:6px 0 0;font-size:13px;color:#78350f;">Based on the payment method you chose, the account details will be sent to you via email by our service team within 1 business day.</p>'
+            + '</div>'
+            // Items table
+            + '<h3 style="color:#0f172a;font-size:15px;margin:0 0 12px;">Order Summary</h3>'
+            + '<table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;">'
+            + '<thead><tr style="background:#f8fafc;"><th style="padding:10px 12px;text-align:left;font-size:12px;color:#475569;font-weight:600;">Product</th><th style="padding:10px 12px;text-align:center;font-size:12px;color:#475569;font-weight:600;">Qty</th><th style="padding:10px 12px;text-align:right;font-size:12px;color:#475569;font-weight:600;">Unit Price</th><th style="padding:10px 12px;text-align:right;font-size:12px;color:#475569;font-weight:600;">Total</th></tr></thead>'
+            + '<tbody>' + itemsTableRows + '</tbody>'
+            + '<tfoot><tr style="background:#f8fafc;"><td colspan="3" style="padding:12px;text-align:right;font-weight:bold;color:#0f172a;font-size:15px;">Subtotal</td><td style="padding:12px;text-align:right;font-weight:bold;color:#0d9488;font-size:15px;">' + formatCurrency(total) + '</td></tr></tfoot>'
+            + '</table>'
+            + (hasTier2 ? '<p style="margin:12px 0 0;font-size:12px;color:#475569;font-style:italic;">\uD83D\uDE9A Note: Your order contains freight items. Final shipping cost will be calculated and sent to you separately.</p>' : '')
+            // Customer info
+            + '<h3 style="color:#0f172a;font-size:15px;margin:24px 0 12px;">Shipping Information</h3>'
+            + '<p style="margin:0;font-size:13px;color:#475569;line-height:1.7;">'
+            + firstName + ' ' + lastName + '<br>'
+            + (company ? company + '<br>' : '')
+            + address + '<br>' + city + ', ' + state + ' ' + zip + '<br>'
+            + phone
+            + '</p>'
+            + '</td></tr>'
+            // Footer
+            + '<tr><td style="background:#f8fafc;padding:20px 40px;text-align:center;border-top:1px solid #e2e8f0;">'
+            + '<p style="margin:0;font-size:12px;color:#94a3b8;">\u00A9 2024 Royal Funeral Supplies \u2014 B2B Sales Only</p>'
+            + '<p style="margin:4px 0 0;font-size:12px;color:#94a3b8;">contact@royalfuneralsupplies.com</p>'
+            + '</td></tr>'
+            + '</table>'
+            + '</td></tr></table>'
+            + '</body></html>';
 
-            try {
-                // 1. Save order to database
-                const orderData = {
-                    id: orderId,
-                    customer_name: `${firstName} ${lastName}`,
-                    email,
-                    phone,
-                    company,
-                    address,
-                    city,
-                    state,
-                    zip,
-                    total_amount: total,
-                    payment_method: paymentMethod,
-                    status: 'pending',
-                    items: JSON.stringify(cart.map(i => ({ name: i.name, qty: i.quantity, price: i.price }))),
-                    created_at: new Date().toISOString()
-                };
+        // Save order to DB then send email
+        try {
+            const orderData = {
+                id: orderId,
+                customer_name: firstName + ' ' + lastName,
+                email: email,
+                phone: phone,
+                company: company,
+                address: address,
+                city: city,
+                state: state,
+                zip: zip,
+                total_amount: total,
+                payment_method: paymentMethod,
+                status: 'pending',
+                items: JSON.stringify(cart.map(function(i){ return { name: i.name, qty: i.quantity, price: i.price }; })),
+                created_at: new Date().toISOString()
+            };
+            if (window.dbManager && window.dbManager.saveOrder) {
                 await window.dbManager.saveOrder(orderData);
+            }
+        } catch (dbErr) {
+            console.warn('Order DB save failed (continuing with email):', dbErr);
+        }
 
-                // 2. Send Emails via Resend API (Using CORS proxy for frontend)
-                const resendApiKey = 're_PRvbKt7K_AZviJrNf1K7hMAg4o5dePD7r';
-                const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent('https://api.resend.com/emails');
+        // Send email via Resend API
+        let emailSent = false;
+        try {
+            const RESEND_KEY = 're_PRvbKt7K_AZviJrNf1K7hMAg4o5dePD7r';
+            const resp = await fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + RESEND_KEY,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    from: 'Royal Funeral Supplies <onboarding@resend.dev>',
+                    to: [email, 'contact@royalfuneralsupplies.com'],
+                    subject: 'Order Confirmation ' + orderId + ' - Royal Funeral Supplies',
+                    html: emailHtml
+                })
+            });
 
-                const emailHtml = `
-                    <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 8px;">
-                        <h2 style="color: #0f172a;">Order Confirmation</h2>
-                        <p>Dear ${firstName} ${lastName},</p>
-                        <p>Thank you for your order! Your Reference ID is <strong>${orderId}</strong>.</p>
-                        <p><strong>Payment Notice:</strong> Based on the payment method you chose (<strong>${paymentMethod}</strong>), the account details will be sent via email by our service.</p>
-                        <hr style="border: none; border-top: 1px solid #eaeaea; margin: 20px 0;">
-                        <h3>Order Summary</h3>
-                        <pre style="background: #f8fafc; padding: 15px; border-radius: 4px; font-family: monospace;">${itemsList}</pre>
-                        <p style="font-size: 18px; font-weight: bold;">Total: ${formatCurrency(total)}</p>
-                        <p style="color: #64748b; font-size: 12px; margin-top: 30px;">This is an automated invoice from Royal Funeral Supplies.</p>
-                    </div>
-                `;
-
-                let emailConfigured = false;
+            if (resp.ok) {
+                console.log('Invoice emails sent successfully via Resend.');
+                emailSent = true;
+            } else {
+                var errBody = await resp.text();
+                console.warn('Resend API error ' + resp.status + ':', errBody);
+                // Fallback: try via CORS proxy
                 try {
-                    const emailRes = await fetch(proxyUrl, {
+                    const proxyResp = await fetch('https://corsproxy.io/?' + encodeURIComponent('https://api.resend.com/emails'), {
                         method: 'POST',
                         headers: {
-                            'Authorization': \`Bearer \${resendApiKey}\`,
+                            'Authorization': 'Bearer ' + RESEND_KEY,
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            from: 'onboarding@resend.dev', // Verified testing sender
+                            from: 'Royal Funeral Supplies <onboarding@resend.dev>',
                             to: [email, 'contact@royalfuneralsupplies.com'],
-                            subject: \`Invoice for Order \${orderId} - Royal Funeral Supplies\`,
+                            subject: 'Order Confirmation ' + orderId + ' - Royal Funeral Supplies',
                             html: emailHtml
                         })
                     });
-                    
-                    if (emailRes.ok) {
-                        console.log('Emails sent successfully via Resend.');
-                        emailConfigured = true;
-                    } else {
-                        console.warn('Email send failed. Status:', emailRes.status);
+                    if (proxyResp.ok) {
+                        console.log('Invoice sent via CORS proxy fallback.');
+                        emailSent = true;
                     }
-                } catch (emailErr) {
-                    console.warn('Email send failed (order still saved):', emailErr);
+                } catch(proxyErr) {
+                    console.warn('Proxy fallback also failed:', proxyErr);
                 }
-
-                // 3. Show Success Modal
-                showSuccessModal(orderId, paymentMethod, hasTier2, email, emailConfigured);
-
-            } catch (err) {
-                console.error('Order error:', err);
-                showSuccessModal(orderId, paymentMethod, hasTier2, email, false);
             }
-        });
-    }
+        } catch (emailErr) {
+            console.warn('Email send error:', emailErr);
+        }
 
+        // Show success popup
+        showSuccessModal(orderId, paymentMethod, email, emailSent);
+    });
+
+    // ─── Alert ────────────────────────────────────────────────────────────────
     function showAlert(msg) {
-        const existing = document.getElementById('checkout-alert');
+        var existing = document.getElementById('checkout-alert');
         if (existing) existing.remove();
-        const alert = document.createElement('div');
-        alert.id = 'checkout-alert';
-        alert.className = 'bg-red-50 border border-red-200 text-red-700 text-sm p-3 rounded-lg mb-4';
-        alert.textContent = msg;
-        checkoutForm.prepend(alert);
-        setTimeout(() => alert.remove(), 5000);
+        var alertEl = document.createElement('div');
+        alertEl.id = 'checkout-alert';
+        alertEl.className = 'bg-red-50 border border-red-200 text-red-700 text-sm p-3 rounded-lg mb-4';
+        alertEl.textContent = msg;
+        checkoutForm.prepend(alertEl);
+        setTimeout(function() { if (alertEl.parentNode) alertEl.remove(); }, 6000);
     }
 
-    function getPaymentDetails(method) {
-        const details = {
-            'Bank Transfer': 'Our team will email you the ACH/Wire routing and account number within 1 business day.',
-            'Zelle': 'Please send payment via Zelle to: contact@royalfuneralsupplies.com. Our team will confirm receipt.',
-            'CashApp': 'Please send payment via CashApp to: $RoyalFuneralSupplies. Our team will confirm receipt.',
-            'Crypto': 'Our team will email you the BTC/ETH wallet address for your payment within 1 business day.'
-        };
-        return details[method] || 'Our team will contact you with payment instructions shortly.';
-    }
+    // ─── Success popup ────────────────────────────────────────────────────────
+    function showSuccessModal(orderId, paymentMethod, email, emailSent) {
+        // Clear any processing state
+        checkoutBtn.disabled = false;
+        checkoutBtn.innerHTML = 'Place Order & Receive Invoice';
 
-    function showSuccessModal(orderId, paymentMethod, hasTier2, email, emailSent) {
-        const modal = document.createElement('div');
-        modal.className = 'fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-60 backdrop-blur-sm';
+        var modal = document.createElement('div');
+        modal.id = 'order-success-modal';
+        modal.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,0.65);backdrop-filter:blur(4px);';
 
-        const box = document.createElement('div');
-        box.className = 'bg-white rounded-2xl shadow-2xl p-8 max-w-lg w-full text-center';
+        var emailNote = emailSent
+            ? '<p style="color:#059669;font-size:13px;font-weight:600;margin:0 0 16px;">\uD83D\uDCE7 Invoice sent to <strong>' + email + '</strong></p>'
+            : '<p style="color:#94a3b8;font-size:13px;margin:0 0 16px;">Our team will email your invoice to <strong>' + email + '</strong> shortly.</p>';
 
-        const emailNote = emailSent
-            ? `<p class="text-xs text-green-600 font-semibold mb-4">📧 Invoice sent to <strong>${email}</strong></p>`
-            : `<p class="text-xs text-slate-400 mb-4">Our team will follow up at <strong>${email}</strong> with your invoice.</p>`;
+        modal.innerHTML = ''
+            + '<div style="background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.3);padding:40px 32px;max-width:480px;width:100%;text-align:center;">'
+            // Checkmark circle
+            + '<div style="width:72px;height:72px;background:#f0fdf4;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">'
+            + '<svg width="40" height="40" fill="none" stroke="#0d9488" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>'
+            + '</div>'
+            + '<h2 style="color:#0f172a;font-size:22px;font-weight:700;margin:0 0 8px;">Order Placed Successfully!</h2>'
+            + '<p style="color:#475569;font-size:14px;margin:0 0 20px;">Your order has been received and you will receive an invoice via email shortly.</p>'
+            // Reference ID
+            + '<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px 20px;margin-bottom:16px;display:inline-block;">'
+            + '<p style="margin:0;font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;">Reference ID</p>'
+            + '<p style="margin:4px 0 0;font-size:22px;font-weight:700;color:#0d9488;letter-spacing:3px;font-family:monospace;">' + orderId + '</p>'
+            + '</div>'
+            + emailNote
+            // Payment note
+            + '<div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:14px 18px;text-align:left;margin-bottom:24px;">'
+            + '<p style="margin:0;font-size:13px;font-weight:700;color:#1e40af;">\uD83D\uDCB3 ' + paymentMethod + ' – Payment Instructions</p>'
+            + '<p style="margin:6px 0 0;font-size:13px;color:#374151;">The payment account details will be sent to you via email by our service team. Please check your inbox.</p>'
+            + '</div>'
+            + '<button id="modal-done-btn" style="background:#0d9488;color:#fff;border:none;border-radius:8px;padding:14px 32px;font-size:15px;font-weight:700;cursor:pointer;width:100%;transition:background 0.2s;">Return to Home</button>'
+            + '</div>';
 
-        box.innerHTML = `
-            <div class="mx-auto w-20 h-20 bg-teal-50 text-teal-clinical rounded-full flex items-center justify-center mb-6 shadow-inner">
-                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-            </div>
-            <h2 class="text-2xl font-bold text-navy-blue mb-2">Order Placed Successfully!</h2>
-            <p class="text-slate-gray mb-4">Your order has been placed and you will receive an invoice via email shortly. Your Reference ID is:</p>
-            <div class="bg-gray-50 border border-gray-200 rounded-lg px-6 py-3 inline-block mb-4">
-                <span class="text-2xl font-mono font-bold text-teal-clinical tracking-widest">${orderId}</span>
-            </div>
-            ${emailNote}
-            <div class="bg-blue-50 border border-blue-100 rounded-lg p-4 text-left mb-6">
-                <p class="text-sm font-bold text-navy-blue mb-1">💳 ${paymentMethod} Payment Instructions</p>
-                <p class="text-sm text-slate-gray">${getPaymentDetails(paymentMethod)}</p>
-            </div>
-            <button id="modal-close-btn" class="btn-primary w-full py-3 rounded-md font-bold text-base">Return to Home</button>
-        `;
-
-        modal.appendChild(box);
         document.body.appendChild(modal);
 
-        document.getElementById('modal-close-btn').onclick = () => {
+        document.getElementById('modal-done-btn').addEventListener('click', function() {
             window.cartManager.clearCart();
             window.location.href = 'index.html';
-        };
+        });
     }
-});
+}
 
+// ─── Boot: wait for cartManager ───────────────────────────────────────────────
 function formatCurrency(amount) {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
 }
+
+// cartManager is created synchronously in main.js (outside DOMContentLoaded),
+// so it should be available when our DOMContentLoaded fires.
+// We poll briefly just in case scripts load out of order.
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.cartManager) {
+        initCheckout();
+    } else {
+        var attempts = 0;
+        var poll = setInterval(function() {
+            attempts++;
+            if (window.cartManager) {
+                clearInterval(poll);
+                initCheckout();
+            } else if (attempts > 20) {
+                clearInterval(poll);
+                console.error('cartManager not found after 2 seconds. Checkout cannot initialise.');
+            }
+        }, 100);
+    }
+});
