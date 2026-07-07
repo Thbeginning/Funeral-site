@@ -9,16 +9,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!cartContainer || !window.cartManager) return;
 
-    // Initialize EmailJS with public key
-    if (window.emailjs && window.EMAIL_CONFIG && window.EMAIL_CONFIG.PUBLIC_KEY !== 'YOUR_PUBLIC_KEY') {
-        emailjs.init(window.EMAIL_CONFIG.PUBLIC_KEY);
-    }
-
     renderCartItems();
 
     function renderCartItems() {
         const cart = window.cartManager.cart;
-        cartContainer.replaceChildren();
+        cartContainer.innerHTML = ''; // Safely clear container for older mobile browsers
 
         if (cart.length === 0) {
             cartContainer.innerHTML = '<p class="text-slate-gray text-center py-8">Your cart is empty. <a href="products.html" class="text-teal-clinical font-bold underline">Browse Products</a></p>';
@@ -165,59 +160,48 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
                 await window.dbManager.saveOrder(orderData);
 
-                // 2. Send Emails via EmailJS (if configured)
-                const emailConfigured = window.EMAIL_CONFIG &&
-                    window.EMAIL_CONFIG.PUBLIC_KEY !== 'YOUR_PUBLIC_KEY' &&
-                    window.emailjs;
+                // 2. Send Emails via Resend API (Using CORS proxy for frontend)
+                const resendApiKey = 're_PRvbKt7K_AZviJrNf1K7hMAg4o5dePD7r';
+                const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent('https://api.resend.com/emails');
 
-                if (emailConfigured) {
-                    const sharedParams = {
-                        order_id: orderId,
-                        customer_name: `${firstName} ${lastName}`,
-                        customer_email: email,
-                        customer_phone: phone,
-                        customer_company: company || 'N/A',
-                        customer_address: `${address}, ${city}, ${state} ${zip}`,
-                        payment_method: paymentMethod,
-                        payment_instructions: paymentInstructions,
-                        items_list: itemsList,
-                        total_amount: formatCurrency(total),
-                        order_date: new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
-                        freight_note: hasTier2 ? 'NOTE: Your order contains freight items. Shipping cost will be calculated and communicated to you.' : ''
-                    };
+                const emailHtml = `
+                    <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 8px;">
+                        <h2 style="color: #0f172a;">Order Confirmation</h2>
+                        <p>Dear ${firstName} ${lastName},</p>
+                        <p>Thank you for your order! Your Reference ID is <strong>${orderId}</strong>.</p>
+                        <p><strong>Payment Notice:</strong> Based on the payment method you chose (<strong>${paymentMethod}</strong>), the account details will be sent via email by our service.</p>
+                        <hr style="border: none; border-top: 1px solid #eaeaea; margin: 20px 0;">
+                        <h3>Order Summary</h3>
+                        <pre style="background: #f8fafc; padding: 15px; border-radius: 4px; font-family: monospace;">${itemsList}</pre>
+                        <p style="font-size: 18px; font-weight: bold;">Total: ${formatCurrency(total)}</p>
+                        <p style="color: #64748b; font-size: 12px; margin-top: 30px;">This is an automated invoice from Royal Funeral Supplies.</p>
+                    </div>
+                `;
 
-                    // Send invoice to CUSTOMER
-                    const customerParams = {
-                        ...sharedParams,
-                        to_email: email,
-                        to_name: `${firstName} ${lastName}`
-                    };
-
-                    // Send notification to ADMIN
-                    const adminParams = {
-                        ...sharedParams,
-                        to_email: window.EMAIL_CONFIG.ADMIN_EMAIL,
-                        to_name: 'Royal Funeral Supplies Admin'
-                    };
-
-                    // Send both emails (don't block on email failure)
-                    try {
-                        await Promise.all([
-                            emailjs.send(
-                                window.EMAIL_CONFIG.SERVICE_ID,
-                                window.EMAIL_CONFIG.CUSTOMER_TEMPLATE_ID,
-                                customerParams
-                            ),
-                            emailjs.send(
-                                window.EMAIL_CONFIG.SERVICE_ID,
-                                window.EMAIL_CONFIG.ADMIN_TEMPLATE_ID,
-                                adminParams
-                            )
-                        ]);
-                        console.log('Emails sent successfully.');
-                    } catch (emailErr) {
-                        console.warn('Email send failed (order still saved):', emailErr);
+                let emailConfigured = false;
+                try {
+                    const emailRes = await fetch(proxyUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': \`Bearer \${resendApiKey}\`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            from: 'onboarding@resend.dev', // Verified testing sender
+                            to: [email, 'contact@royalfuneralsupplies.com'],
+                            subject: \`Invoice for Order \${orderId} - Royal Funeral Supplies\`,
+                            html: emailHtml
+                        })
+                    });
+                    
+                    if (emailRes.ok) {
+                        console.log('Emails sent successfully via Resend.');
+                        emailConfigured = true;
+                    } else {
+                        console.warn('Email send failed. Status:', emailRes.status);
                     }
+                } catch (emailErr) {
+                    console.warn('Email send failed (order still saved):', emailErr);
                 }
 
                 // 3. Show Success Modal
@@ -266,8 +250,8 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="mx-auto w-20 h-20 bg-teal-50 text-teal-clinical rounded-full flex items-center justify-center mb-6 shadow-inner">
                 <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
             </div>
-            <h2 class="text-2xl font-bold text-navy-blue mb-2">${hasTier2 ? 'Quote Request Received!' : 'Order Placed Successfully!'}</h2>
-            <p class="text-slate-gray mb-4">Thank you for your order. Your Reference ID is:</p>
+            <h2 class="text-2xl font-bold text-navy-blue mb-2">Order Placed Successfully!</h2>
+            <p class="text-slate-gray mb-4">Your order has been placed and you will receive an invoice via email shortly. Your Reference ID is:</p>
             <div class="bg-gray-50 border border-gray-200 rounded-lg px-6 py-3 inline-block mb-4">
                 <span class="text-2xl font-mono font-bold text-teal-clinical tracking-widest">${orderId}</span>
             </div>
