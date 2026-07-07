@@ -227,7 +227,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 h3.textContent = group.name;
                 
                 const p = document.createElement('p');
-                p.className = 'text-slate-gray text-sm flex-grow';
+                p.className = 'text-slate-gray text-sm flex-grow line-clamp-3';
+                p.title = group.description || ''; // Show full description on hover
                 p.textContent = group.description || '';
                 
                 const arrow = document.createElement('div');

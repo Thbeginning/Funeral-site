@@ -24,6 +24,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // Highlight active category
                 if (categoryFilter === group.slug) {
                     a.className = 'text-teal-clinical font-bold transition-colors';
+                    // Update header with category details
+                    const headerTitle = document.getElementById('page-header-title');
+                    const headerDesc = document.getElementById('page-header-desc');
+                    if (headerTitle) headerTitle.textContent = group.name;
+                    if (headerDesc) headerDesc.textContent = group.description || `Browse our selection of ${group.name}.`;
                 } else {
                     a.className = 'text-slate-gray hover:text-teal-clinical transition-colors';
                 }
@@ -86,7 +91,8 @@ function renderProducts(products, container) {
         title.textContent = product.name;
 
         const desc = document.createElement('p');
-        desc.className = 'text-slate-gray text-sm mb-4 flex-grow';
+        desc.className = 'text-slate-gray text-sm mb-4 flex-grow line-clamp-3';
+        desc.title = product.description; // show on hover just in case
         desc.textContent = product.description;
 
         const priceRow = document.createElement('div');
