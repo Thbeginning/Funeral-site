@@ -222,55 +222,46 @@ function initCheckout() {
             console.warn('Order DB save failed (continuing with email):', dbErr);
         }
 
-        // Send email via Resend API
+        // Send invoice email via Supabase Edge Function (server-side — no CORS issues)
         let emailSent = false;
         try {
-            const RESEND_KEY = 're_Sj6daB1k_BVpwTAERdT5zTQFgM3e5mnQv';
-            const resp = await fetch('https://api.resend.com/emails', {
+            const SUPABASE_EDGE_URL = 'https://vypnmrxybqluurizfxjx.supabase.co/functions/v1/send-invoice';
+            const invoicePayload = {
+                orderId: orderId,
+                orderDate: orderDate,
+                customerEmail: email,
+                firstName: firstName,
+                lastName: lastName,
+                company: company,
+                address: address,
+                city: city,
+                state: state,
+                zip: zip,
+                phone: phone,
+                paymentMethod: paymentMethod,
+                cart: cart,
+                total: total
+            };
+
+            const resp = await fetch(SUPABASE_EDGE_URL, {
                 method: 'POST',
                 headers: {
-                    'Authorization': 'Bearer ' + RESEND_KEY,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5cG5tcnh5YnFsdXVyaXpmeGp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyODI2NTAsImV4cCI6MjA5ODg1ODY1MH0.xBXM9gPOgBkGFv03NLwNPiJrgBHler-FdrCnUedcA44',
+                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5cG5tcnh5YnFsdXVyaXpmeGp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyODI2NTAsImV4cCI6MjA5ODg1ODY1MH0.xBXM9gPOgBkGFv03NLwNPiJrgBHler-FdrCnUedcA44'
                 },
-                body: JSON.stringify({
-                    from: 'Royal Funeral Supplies <contact@royalfuneralsupplies.com>',
-                    to: [email, 'contact@royalfuneralsupplies.com'],
-                    subject: 'Order Confirmation ' + orderId + ' - Royal Funeral Supplies',
-                    html: emailHtml
-                })
+                body: JSON.stringify(invoicePayload)
             });
 
-            if (resp.ok) {
-                console.log('Invoice emails sent successfully via Resend.');
+            const result = await resp.json();
+            if (resp.ok && result.success) {
+                console.log('Invoice email sent via Edge Function. ID:', result.id);
                 emailSent = true;
             } else {
-                var errBody = await resp.text();
-                console.warn('Resend API error ' + resp.status + ':', errBody);
-                // Fallback: try via CORS proxy
-                try {
-                    const proxyResp = await fetch('https://corsproxy.io/?' + encodeURIComponent('https://api.resend.com/emails'), {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': 'Bearer ' + RESEND_KEY,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            from: 'Royal Funeral Supplies <contact@royalfuneralsupplies.com>',
-                            to: [email, 'contact@royalfuneralsupplies.com'],
-                            subject: 'Order Confirmation ' + orderId + ' - Royal Funeral Supplies',
-                            html: emailHtml
-                        })
-                    });
-                    if (proxyResp.ok) {
-                        console.log('Invoice sent via CORS proxy fallback.');
-                        emailSent = true;
-                    }
-                } catch(proxyErr) {
-                    console.warn('Proxy fallback also failed:', proxyErr);
-                }
+                console.warn('Edge Function email error:', result.error || result);
             }
         } catch (emailErr) {
-            console.warn('Email send error:', emailErr);
+            console.warn('Invoice email error:', emailErr);
         }
 
         // Show success popup
