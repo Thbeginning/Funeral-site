@@ -225,7 +225,7 @@ function initCheckout() {
         // Send email via Resend API
         let emailSent = false;
         try {
-            const RESEND_KEY = 're_PRvbKt7K_AZviJrNf1K7hMAg4o5dePD7r';
+            const RESEND_KEY = 're_Sj6daB1k_BVpwTAERdT5zTQFgM3e5mnQv';
             const resp = await fetch('https://api.resend.com/emails', {
                 method: 'POST',
                 headers: {
@@ -233,7 +233,7 @@ function initCheckout() {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    from: 'Royal Funeral Supplies <onboarding@resend.dev>',
+                    from: 'Royal Funeral Supplies <contact@royalfuneralsupplies.com>',
                     to: [email, 'contact@royalfuneralsupplies.com'],
                     subject: 'Order Confirmation ' + orderId + ' - Royal Funeral Supplies',
                     html: emailHtml
@@ -255,7 +255,7 @@ function initCheckout() {
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            from: 'Royal Funeral Supplies <onboarding@resend.dev>',
+                            from: 'Royal Funeral Supplies <contact@royalfuneralsupplies.com>',
                             to: [email, 'contact@royalfuneralsupplies.com'],
                             subject: 'Order Confirmation ' + orderId + ' - Royal Funeral Supplies',
                             html: emailHtml
