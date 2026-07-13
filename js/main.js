@@ -259,38 +259,61 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!track) return;
 
     const reviews = [
-        { name: "Robert H.", role: "Funeral Director", text: "The heavy-duty mortuary cot we ordered is incredibly well built. Highly recommend Royal." },
-        { name: "Sarah M.", role: "Operations Manager", text: "Shipping was fast and the quality of the prep room tables is unmatched for the price point." },
-        { name: "David T.", role: "Owner", text: "Maxwell was extremely helpful in answering our questions. We will be ordering exclusively from them." },
-        { name: "Jennifer K.", role: "Lead Embalmer", text: "Finally found a reliable supplier for clinical disposables. Consistent quality and great service." },
-        { name: "Michael C.", role: "Transport Specialist", text: "The flexible stretchers have made our removals so much easier. Durable and easy to clean." },
-        { name: "Thomas R.", role: "Funeral Home Owner", text: "Exceptional customer service. The church trucks we received look highly professional and dignified." },
-        { name: "Amanda B.", role: "Care Center Director", text: "Their bariatric equipment is best-in-class. Very sturdy and gives our staff confidence." },
-        { name: "James L.", role: "Mortician", text: "Smooth transactions and fast freight. The stainless steel tables arrived in perfect condition." },
-        { name: "William S.", role: "Facility Manager", text: "Great return policy, though we've never had to use it. Everything arrives exactly as described." },
-        { name: "Elizabeth P.", role: "Procurement", text: "Pricing is very competitive for B2B. The invoicing process is seamless and very professional." },
-        { name: "Richard D.", role: "Owner/Director", text: "I appreciate the 24/7 support. Had an urgent order need and they fulfilled it immediately." },
-        { name: "Joseph E.", role: "Crematory Operator", text: "The body bags are thick, reliable, and exactly what we need for our daily operations." },
-        { name: "Daniel W.", role: "Logistics", text: "Freight tracking was accurate. The equipment was crated perfectly to avoid any damage." },
-        { name: "Lisa F.", role: "Funeral Director", text: "The dressing tables fold easily and store neatly. Great space-savers for our prep room." },
-        { name: "Paul G.", role: "Manager", text: "I love the new site design! Ordering is much easier now and the product catalog is extensive." },
-        { name: "Mark V.", role: "Owner", text: "Royal Funeral Supplies understands what we do. They are partners, not just vendors." },
-        { name: "Steven A.", role: "Embalmer", text: "The fluid collection systems we bought here work flawlessly. High clinical standards." },
-        { name: "Kevin N.", role: "Transport Co. Owner", text: "We equip our entire fleet with their cots. They hold up great to daily heavy use." },
-        { name: "Brian Y.", role: "Operations", text: "Solid urn vaults and great presentation items. The quality reflects well on our business." },
-        { name: "Jason O.", role: "Director", text: "Honestly the best supplier we've used in 15 years. Maxwell knows the industry inside out." }
+        { name: "Robert H.", role: "Funeral Director", text: "The heavy-duty mortuary cot we ordered is incredibly well built. Highly recommend Royal.", flagCode: "us" },
+        { name: "Sarah M.", role: "Operations Manager", text: "Shipping was fast and the quality of the prep room tables is unmatched for the price point.", flagCode: "ca" },
+        { name: "David T.", role: "Owner", text: "Maxwell was extremely helpful in answering our questions. We will be ordering exclusively from them.", flagCode: "gb" },
+        { name: "Jennifer K.", role: "Lead Embalmer", text: "Finally found a reliable supplier for clinical disposables. Consistent quality and great service.", flagCode: "au" },
+        { name: "Michael C.", role: "Transport Specialist", text: "The flexible stretchers have made our removals so much easier. Durable and easy to clean.", flagCode: "nz" },
+        { name: "Thomas R.", role: "Funeral Home Owner", text: "Exceptional customer service. The church trucks we received look highly professional and dignified.", flagCode: "us" },
+        { name: "Amanda B.", role: "Care Center Director", text: "Their bariatric equipment is best-in-class. Very sturdy and gives our staff confidence.", flagCode: "ca" },
+        { name: "James L.", role: "Mortician", text: "Smooth transactions and fast freight. The stainless steel tables arrived in perfect condition.", flagCode: "gb" },
+        { name: "William S.", role: "Facility Manager", text: "Great return policy, though we've never had to use it. Everything arrives exactly as described.", flagCode: "us" },
+        { name: "Elizabeth P.", role: "Procurement", text: "Pricing is very competitive for B2B. The invoicing process is seamless and very professional.", flagCode: "au" },
+        { name: "Richard D.", role: "Owner/Director", text: "I appreciate the 24/7 support. Had an urgent order need and they fulfilled it immediately.", flagCode: "nz" },
+        { name: "Joseph E.", role: "Crematory Operator", text: "The body bags are thick, reliable, and exactly what we need for our daily operations.", flagCode: "us" },
+        { name: "Daniel W.", role: "Logistics", text: "Freight tracking was accurate. The equipment was crated perfectly to avoid any damage.", flagCode: "ca" },
+        { name: "Lisa F.", role: "Funeral Director", text: "The dressing tables fold easily and store neatly. Great space-savers for our prep room.", flagCode: "gb" },
+        { name: "Paul G.", role: "Manager", text: "I love the new site design! Ordering is much easier now and the product catalog is extensive.", flagCode: "ie" },
+        { name: "Mark V.", role: "Owner", text: "Royal Funeral Supplies understands what we do. They are partners, not just vendors.", flagCode: "us" },
+        { name: "Steven A.", role: "Embalmer", text: "The fluid collection systems we bought here work flawlessly. High clinical standards.", flagCode: "ca" },
+        { name: "Kevin N.", role: "Transport Co. Owner", text: "We equip our entire fleet with their cots. They hold up great to daily heavy use.", flagCode: "gb" },
+        { name: "Brian Y.", role: "Operations", text: "Solid urn vaults and great presentation items. The quality reflects well on our business.", flagCode: "au" },
+        { name: "Jason O.", role: "Director", text: "Honestly the best supplier we've used in 15 years. Maxwell knows the industry inside out.", flagCode: "us" },
+        { name: "Alistair M.", role: "Mortuary Specialist", text: "High quality embalming tools. Their precision makes prep work significantly easier.", flagCode: "gb" },
+        { name: "Chantal L.", role: "Director of Services", text: "Wonderful service! B2B ordering was super simple, and delivery arrived on schedule.", flagCode: "ca" },
+        { name: "Harrison T.", role: "General Manager", text: "Their refrigeration units are efficient and quiet. Perfect fit for our remodeled facility.", flagCode: "us" },
+        { name: "Brooke S.", role: "Support Coordinator", text: "Customer service is top-notch. They helped us track down a custom shipping size quickly.", flagCode: "au" },
+        { name: "Nigel K.", role: "Chapel Director", text: "The presentation biers have an elegant, premium look. Excellent addition to our chapel.", flagCode: "nz" },
+        { name: "Kathryn P.", role: "Funeral Planner", text: "Incredibly fast shipping. The order process was seamless from beginning to end.", flagCode: "ie" },
+        { name: "Douglas B.", role: "Embalming Technician", text: "Excellent fluids! They perform exactly as described, providing beautiful preservation.", flagCode: "us" },
+        { name: "Fiona C.", role: "Managing Director", text: "Professional staff who understand the industry constraints. Highly recommended.", flagCode: "gb" },
+        { name: "Ian G.", role: "Transport Driver", text: "Durable transport gear. Handles extreme weight easily and feels very secure.", flagCode: "ca" },
+        { name: "Rebecca W.", role: "Office Manager", text: "The invoices are accurate and itemized perfectly. Makes corporate accounting easy.", flagCode: "us" },
+        { name: "Liam O.", role: "Mortuary Manager", text: "Best price-to-performance ratio in the industry. We will continue buying from them.", flagCode: "ie" },
+        { name: "Gregory F.", role: "Cremationist", text: "Heavy duty processing tools. High durability even with continuous, high-volume use.", flagCode: "au" },
+        { name: "Diana M.", role: "Owner", text: "Extremely happy with the overall quality. Customer support is prompt and friendly.", flagCode: "gb" },
+        { name: "Timothy J.", role: "Lead Transport", text: "Our staff prefers these stretchers over any others. Lightweight but incredibly tough.", flagCode: "us" },
+        { name: "Nadia H.", role: "Care Specialist", text: "Great range of body bags. Clear categories, easy to choose exactly what we need.", flagCode: "ca" },
+        { name: "Arthur D.", role: "Prep Supervisor", text: "Solid stainless prep tools. Easy to sanitize and rust-free after intense usage.", flagCode: "gb" },
+        { name: "Clara S.", role: "Director", text: "Maxwell was knowledgeable and guided us through our startup equipment package.", flagCode: "us" },
+        { name: "Stuart V.", role: "Logistics Manager", text: "The freight arrived crated and padded beautifully. No scratches or damage.", flagCode: "au" },
+        { name: "Gillian E.", role: "Crematory Supervisor", text: "Highly heat-resistant ID tags. Sequential lettering is clear and clean.", flagCode: "nz" },
+        { name: "Patrick R.", role: "Funeral Director", text: "A truly professional B2B partner. Ordering process is efficient and reliable.", flagCode: "ie" }
     ];
 
     // Function to generate the HTML for a single review card
     const createReviewCard = (review) => {
         return `
             <div class="inline-block w-80 md:w-96 p-6 mx-4 bg-gray-50 rounded-xl border border-gray-100 shadow-sm whitespace-normal align-top">
-                <div class="flex text-yellow-400 mb-3">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex text-yellow-400">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                    </div>
+                    <img src="https://flagcdn.com/w40/${review.flagCode}.png" alt="${review.flagCode} flag" class="w-6 h-6 object-cover rounded-full shadow-sm border border-gray-100 select-none">
                 </div>
                 <p class="text-slate-gray italic mb-4 leading-relaxed line-clamp-3">"${review.text}"</p>
                 <div class="flex items-center mt-auto">
