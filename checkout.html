@@ -417,32 +417,28 @@
     }
 
     async function sendInvoiceEmail(data) {
-        var html = buildEmailHtml(data);
-        var payload = JSON.stringify({
-            from: 'Royal Funeral Supplies <contact@royalfuneralsupplies.com>',
-            to: [data.customerEmail, ADMIN_EMAIL],
-            subject: 'Order Confirmation ' + data.orderId + ' — Royal Funeral Supplies',
-            html: html
-        });
-        var headers = {
-            'Authorization': 'Bearer ' + RESEND_KEY,
-            'Content-Type': 'application/json'
-        };
-
-        // Try direct first
+        // Call the Supabase Edge Function — runs server-side, fully bypasses CORS
+        var EDGE_URL = 'https://vypnmrxybqluurizfxjx.supabase.co/functions/v1/send-invoice';
+        var ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5cG5tcnh5YnFsdXVyaXpmeGp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyODI2NTAsImV4cCI6MjA5ODg1ODY1MH0.xBXM9gPOgBkGFv03NLwNPiJrgBHler-FdrCnUedcA44';
         try {
-            var r = await fetch('https://api.resend.com/emails', { method: 'POST', headers: headers, body: payload });
-            if (r.ok) { console.log('Email sent via Resend directly.'); return true; }
-            console.warn('Direct Resend failed:', r.status, await r.text());
-        } catch(e) { console.warn('Direct Resend error:', e.message); }
-
-        // Fallback: CORS proxy
-        try {
-            var r2 = await fetch('https://corsproxy.io/?' + encodeURIComponent('https://api.resend.com/emails'), { method: 'POST', headers: headers, body: payload });
-            if (r2.ok) { console.log('Email sent via CORS proxy.'); return true; }
-            console.warn('Proxy Resend failed:', r2.status);
-        } catch(e2) { console.warn('Proxy error:', e2.message); }
-
+            var resp = await fetch(EDGE_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'apikey': ANON_KEY,
+                    'Authorization': 'Bearer ' + ANON_KEY
+                },
+                body: JSON.stringify(data)
+            });
+            var result = await resp.json();
+            if (resp.ok && result.success) {
+                console.log('Invoice email sent successfully. ID:', result.id);
+                return true;
+            }
+            console.warn('Edge Function returned error:', result.error || result);
+        } catch(e) {
+            console.warn('sendInvoiceEmail error:', e.message);
+        }
         return false;
     }
 
